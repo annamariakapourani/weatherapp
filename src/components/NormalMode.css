@@ -1,0 +1,163 @@
+
+.container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(180deg, #F08080 0%, #F4978E 25.6%, #F8AD9D 46.6%, #FBC4AB 68.6%, rgba(255, 218, 185, 0.93) 99.1%);
+    min-height: 100vh;
+}
+
+.searchBar{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 35px;
+}
+
+.searchBar input{
+    height: 38px;
+    border: none;
+    outline: none;
+    padding-left: 25px;
+    font-size: 20px;
+    width: 30rem;
+    border-radius: 50px;
+    background: #FFF4E9;
+}
+
+.searchBar img{
+    width: 60px;
+    padding: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.switchMode{
+    position: absolute;
+    top: 35px;
+    right: 50px;
+    width: 50px;
+    height: 50px;
+    padding: 15px;
+    border-radius: 50%;
+    background: #FFF4E9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.switchMode img{
+    cursor: pointer;
+    width: 30px;
+}
+
+.popUpMessage{
+    position: absolute;
+    top: 25px;
+    left: 50px;
+    border-radius: 20px;
+    background: #FFF4E9;    
+    width: 190px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+}
+
+.message{
+    width: 195px;
+    height: 43px;
+    color: #000;
+    font-size: 15px;
+    margin-left: 20px;
+}
+
+.bellIcon{
+    width: 32px;
+    height: 32px;
+    margin-bottom: 20px;
+    margin-right: 15px;
+}
+
+.weatherInfo{
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.weatherInfo img{
+    width: 180px;
+    height: 180px;
+    margin-right: 100px;
+    margin-top: 70px;
+}
+
+.temp{
+    font-size: 4rem;
+    margin-right: 20px;
+}
+
+.desc{
+    font-size: 4rem;
+}
+
+.city{
+    position: absolute;
+    font-size: 4rem;
+    margin-top: 170px;
+    margin-left: 290px;
+}
+
+.otherInfo{
+    display: flex;
+    align-items: center;
+    gap: 40px; 
+    justify-content: space-between;
+    margin-top: 70px;
+}
+
+.visibility, .humidity, .sunrise, .sunset{
+    display: flex;
+    align-items: center;
+}
+
+.otherInfo img{
+    width: 35px;
+}
+
+.otherInfo p {
+    padding-left: 10px;
+}
+
+
+.threeDayInfo{
+    display: flex;
+    align-items: center;
+    gap: 40px; 
+    justify-content: space-between;
+    margin-top: 80px;
+}
+
+.dayOne, .dayTwo, .dayThree{
+    width: 210px;
+    height: 210px;
+    border-radius: 30px;
+    background: #FFF4E9;
+}
+
+.threeDayInfo img{
+    width: 100px;
+    padding: 10px;
+}
+
+.threeDayInfo p {
+    margin-left: 100px;
+    font-size: 2rem;
+}
+
+.searchBar button {
+    border: none;
+    outline: none;
+    background-color: transparent; /* Optional, if you want to remove the background color */
+    padding: 0; /* Optional, to remove any extra space inside the button */
+  }
+  
