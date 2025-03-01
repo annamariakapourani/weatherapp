@@ -157,7 +157,19 @@
 .searchBar button {
     border: none;
     outline: none;
-    background-color: transparent; /* Optional, if you want to remove the background color */
-    padding: 0; /* Optional, to remove any extra space inside the button */
+    background-color: transparent; 
+    padding: 0;
   }
-  
+
+
+@keyframes bellIcon{
+    0% {transform: rotate(0deg);}
+    25% {transform: rotate(5deg);}
+    50% {transform: rotate(0deg);}
+    75% {transform: rotate(-7deg);}
+    100% {transform: rotate(0deg);}
+}
+
+.bellIcon{
+    animation: bellIcon 0.5s ease-in-out infinite;
+}
