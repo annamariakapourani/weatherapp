@@ -20,130 +20,149 @@ import fog from "../assets/fog.png"
 
 
 const NormalMode = () => {
-    
     const [city, setCity] = useState('London');
     const [weatherData, setWeatherData] = useState(null);
+    const [dailyForecast, setDailyForecast] = useState(null);
     const [weatherIcon, setWeatherIcon] = useState();
-    const getWeatherIcon = (weatherId) => {
-        if (weatherId >= 200 && weatherId <= 232) {
-          return thunderstorm;
-        } else if (weatherId >= 300 && weatherId <= 321) {
-          return drizzle; 
-        } else if (weatherId >= 500 && weatherId <= 531) {
-          return rain; 
-        } else if (weatherId >= 600 && weatherId <= 622) {
-          return snow; // A custom icon for snow
-        } else if (weatherId >= 701 && weatherId <= 781) {
-          return fog;
-        } else if (weatherId === 800) {
-          return sunIcon; 
-        } else if (weatherId >= 801 && weatherId <= 804) {
-          return sunCloudy; 
-        } else {
-          return sunIcon; 
-        }
-      };
+    const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
+    const [error, setError] = useState(null);
+    const FORECAST_DAYS = 3;
 
-    const fetchData = useCallback( async () => {
+    // Weather icon mapping function remains the same
+    const getWeatherIcon = (weatherId) => {
+        if (weatherId >= 200 && weatherId <= 232) return thunderstorm;
+        if (weatherId >= 300 && weatherId <= 321) return drizzle;
+        if (weatherId >= 500 && weatherId <= 531) return rain;
+        if (weatherId >= 600 && weatherId <= 622) return snow;
+        if (weatherId >= 701 && weatherId <= 781) return fog;
+        if (weatherId === 800) return sunIcon;
+        if (weatherId >= 801 && weatherId <= 804) return sunCloudy;
+        return sunIcon;
+    };
+
+    const formatTime = (timestamp, timezone) => {
+        const date = new Date((timestamp + timezone) * 1000);
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    };
+
+    const fetchData = useCallback(async () => {
         if (!city) return;
-        try{
+        try {
+            setError(null);
             const response = await axios.get(
-                `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=e1d56bfaafc0e49d4263f9a2786c370b`
+                `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
             );
             setWeatherData(response.data);
-            console.log(response.data);
-            const weatherId = response.data.weather[0].id; // Get weather ID from API
-            const icon = getWeatherIcon(weatherId);
-            setWeatherIcon(icon) ;           
-        }catch(error){
-            console.log("Error fetching data", error);
+            setCoordinates({
+                lat: response.data.coord.lat,
+                lon: response.data.coord.lon
+            });
+            setWeatherIcon(getWeatherIcon(response.data.weather[0].id));
+        } catch (error) {
+            setError('Failed to fetch weather data');
+            console.error("Error fetching data:", error);
         }
     }, [city]);
 
-    useEffect(() => {
-        if (city) {
-            fetchData();
+    const fetchDailyForecast = useCallback(async () => {
+        if (!coordinates.lat || !coordinates.lon) return;
+        try {
+            setError(null);
+            const response = await axios.get(
+                `https://api.openweathermap.org/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&units=metric&cnt=${FORECAST_DAYS}&appid=${process.env.REACT_APP_OWM_API_KEY}`
+            );
+            setDailyForecast({
+                list: response.data.list,
+                timezone: response.data.city.timezone
+            });
+        } catch (error) {
+            setError('Failed to fetch forecast data');
+            console.error("Error fetching forecast data:", error);
         }
-    }, []); 
-    
-    const handleInputChange = (e) => {
-        setCity(e.target.value);
-    };
+    }, [coordinates]);
+
+    useEffect(() => {
+        if (city) fetchData();
+    }, [city, fetchData]);
+
+    useEffect(() => {
+        if (coordinates.lat && coordinates.lon) fetchDailyForecast();
+    }, [coordinates, fetchDailyForecast]);
+
+    const handleInputChange = (e) => setCity(e.target.value);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         fetchData();
     };
 
-  return (
-    <div className="container">
-        <form onSubmit={handleSubmit} className='searchBar'>
-            <input type='text' placeholder='Search a city' value={city} onChange={handleInputChange}/>
-            <button type="submit">
-                <img className='searchIcon' src={IconSearch} alt='Search' />
-            </button>
-        </form>
+    return (
+        <div className="container">
+            <form onSubmit={handleSubmit} className='searchBar'>
+                <input type='text' placeholder='Search a city' value={city} onChange={handleInputChange}/>
+                <button type="submit">
+                    <img className='searchIcon' src={IconSearch} alt='Search' />
+                </button>
+            </form>
 
-        <div className='switchMode'>
-            <img src={surferIcon} alt=''/>
-        </div>
-
-        <div className='popUpMessage'>
-            <p className='message'>Don&apos;t forget<br/>your sunscreen!</p>
-            <img className='bellIcon' src={bellIcon} alt=''/>
-        </div>
-
-        <div className='weatherInfo'>
-            <img className='weatherIcon' src={weatherIcon} alt='' />
-            <p className='temp'>{weatherData?.main?.temp}°</p>
-            <p className='desc'>{weatherData?.weather?.[0]?.description}</p>
-            <p className='city'>{weatherData?.name}</p>
-        </div>
-
-        <div className='otherInfo'>
-            <div className='feelsLike'>
-                <p>Feels Like: {weatherData?.main?.feels_like}°C</p>
-            </div>
-            <div className='visibility'>
-                <img src={visibility} alt=''/>
-                <p>{weatherData?.visibility}</p>
-            </div>
-            <div className='humidity'>
-                <img src={humidity} alt=''/>
-                <p>{weatherData?.main?.humidity}%</p>
-            </div>
-            <div className='sunrise'>
-                <img src={sunrise} alt='' />
-                <p>{weatherData?.sys?.sunrise && new Date(weatherData?.sys?.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-            </div>
-            <div className='sunset'>
-                <img src={sunset} alt='' />
-                <p>{weatherData?.sys?.sunset && new Date(weatherData?.sys?.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-            </div>
-        </div>
-
-        <div className='threeDayInfo'>
-            <div className='dayOne'>
-                <img className='sunIcon' src={sunIcon} alt=''/>
-                <p>27°</p>
-                <p>12:00</p>
-            </div>
-            <div className='dayTwo'>
-                <img className='sunCloudy' src={sunCloudy} alt=''/>
-                <p>28°</p>
-                <p>13:00</p>
+            <div className='switchMode'>
+                <img src={surferIcon} alt=''/>
             </div>
 
-            <div className='dayThree'>
-                <img className='sunIcon' src={sunIcon} alt=''/>
-                <p>30°</p>
-                <p>14:00</p>
+            <div className='popUpMessage'>
+                <p className='message'>Don&apos;t forget<br/>your sunscreen!</p>
+                <img className='bellIcon' src={bellIcon} alt=''/>
+            </div>
+
+            <div className='weatherInfo'>
+                <img className='weatherIcon' src={weatherIcon} alt='' />
+                <p className='temp'>{Math.round(weatherData?.main?.temp)}°</p>
+                <p className='desc'>{weatherData?.weather?.[0]?.description}</p>
+                <p className='city'>{weatherData?.name}</p>
+            </div>
+
+            <div className='otherInfo'>
+                <div className='feelsLike'>
+                    <p>Feels Like: {Math.round(weatherData?.main?.feels_like)}°C</p>
+                </div>
+                <div className='visibility'>
+                    <img src={visibility} alt=''/>
+                    <p>{weatherData?.visibility}</p>
+                </div>
+                <div className='humidity'>
+                    <img src={humidity} alt=''/>
+                    <p>{weatherData?.main?.humidity}%</p>
+                </div>
+                <div className='sunrise'>
+                    <img src={sunrise} alt='' />
+                    <p>{weatherData?.sys?.sunrise && formatTime(weatherData.sys.sunrise, weatherData.timezone)}</p>
+                </div>
+                <div className='sunset'>
+                    <img src={sunset} alt='' />
+                    <p>{weatherData?.sys?.sunset && formatTime(weatherData.sys.sunset, weatherData.timezone)}</p>
+                </div>
+            </div>
+            <div className='threeDayInfo'>
+                {error ? (
+                    <p className="error">{error}</p>
+                ) : dailyForecast?.list ? (
+                    dailyForecast.list.map((day, index) => (
+                        <div key={index} className='day'>
+                            <p>{new Date((day.dt + (index*24*60*60)) * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</p>
+                            <img src={getWeatherIcon(day.weather[0].id)} alt={day.weather[0].description} />
+                            <p>{Math.round(day.main.temp)}°</p>
+                        </div>
+                    ))
+                ) : (
+                    <p>Loading forecast...</p>
+                )}
             </div>
         </div>
-
-
-    </div>
-  )
+    )
 }
 
 export default NormalMode;
