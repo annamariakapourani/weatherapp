@@ -26,17 +26,19 @@ const NormalMode = () => {
     const [weatherIcon, setWeatherIcon] = useState();
     const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
     const [error, setError] = useState(null);
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
     const FORECAST_DAYS = 3;
 
     // Weather icon mapping function remains the same
     const getWeatherIcon = (weatherId) => {
         if (weatherId >= 200 && weatherId <= 232) return thunderstorm;
-        if (weatherId >= 300 && weatherId <= 321) return drizzle;
-        if (weatherId >= 500 && weatherId <= 531) return rain;
-        if (weatherId >= 600 && weatherId <= 622) return snow;
-        if (weatherId >= 701 && weatherId <= 781) return fog;
-        if (weatherId === 800) return sunIcon;
-        if (weatherId >= 801 && weatherId <= 804) return sunCloudy;
+        else if (weatherId >= 300 && weatherId <= 321) return drizzle;
+        else if (weatherId >= 500 && weatherId <= 531) return rain;
+        else if (weatherId >= 600 && weatherId <= 622) return snow;
+        else if (weatherId >= 701 && weatherId <= 781) return fog;
+        else if (weatherId === 800) return sunIcon;
+        else if (weatherId >= 801 && weatherId <= 804) return sunCloudy;
         return sunIcon;
     };
 
@@ -85,6 +87,32 @@ const NormalMode = () => {
         }
     }, [coordinates]);
 
+    const fetchSuggestions = useCallback(async (query) => {
+        if (!query || query.length < 2) {
+            setSuggestions([]);
+            setShowSuggestions(false);
+            return;
+        }
+
+        try {
+            const response = await axios.get(
+                `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${process.env.REACT_APP_OWM_API_KEY}`
+            );
+
+            const cityData = response.data.map(city => ({
+                name: city.name,
+                country: city.country,
+                state: city.state,
+                displayName: city.state ? `${city.name}, ${city.state}, ${city.country}` : `${city.name}, ${city.country}`
+            }));
+
+            setSuggestions(cityData);
+            setShowSuggestions(true);
+        } catch (error) {
+            console.error("Error fetching city suggestions:", error);
+        }
+    }, []);
+
     useEffect(() => {
         if (city) fetchData();
     }, [city, fetchData]);
@@ -93,7 +121,18 @@ const NormalMode = () => {
         if (coordinates.lat && coordinates.lon) fetchDailyForecast();
     }, [coordinates, fetchDailyForecast]);
 
-    const handleInputChange = (e) => setCity(e.target.value);
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setCity(value);
+        fetchSuggestions(value);
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        setCity(suggestion.name);
+        setSuggestions([]);
+        setShowSuggestions(false);
+        fetchData();
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -102,27 +141,54 @@ const NormalMode = () => {
 
     return (
         <div className="container">
-            <form onSubmit={handleSubmit} className='searchBar'>
-                <input type='text' placeholder='Search a city' value={city} onChange={handleInputChange}/>
-                <button type="submit">
-                    <img className='searchIcon' src={IconSearch} alt='Search' />
-                </button>
-            </form>
+            <div className='header'>
+                <div className='popUpMessage'>
+                    <p className='message'>Don' t forget<br />your sunscreen!</p>
+                    <img className='bellIcon' src={bellIcon} alt='' />
+                </div>
 
-            <div className='switchMode'>
-                <img src={surferIcon} alt=''/>
-            </div>
+                <form onSubmit={handleSubmit} className='searchBar'>
+                    <div className="search-container">
+                        <input
+                            type='text'
+                            placeholder='Search a city'
+                            value={city}
+                            onChange={handleInputChange}
+                            onFocus={() => city.length >= 2 && setShowSuggestions(true)}
+                        />
+                        {showSuggestions && suggestions.length > 0 && (
+                            <div className="suggestions-dropdown">
+                                {suggestions.map((suggestion, index) => (
+                                    <div
+                                        key={index}
+                                        className="suggestion-item"
+                                        onClick={() => handleSuggestionClick(suggestion)}
+                                    >
+                                        {suggestion.displayName}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <button type="submit" className='searchButton'>
+                        <img className='searchIcon' src={IconSearch} alt='Search' />
+                    </button>
+                </form>
 
-            <div className='popUpMessage'>
-                <p className='message'>Don&apos;t forget<br/>your sunscreen!</p>
-                <img className='bellIcon' src={bellIcon} alt=''/>
+                <div className='switchMode'>
+                    <img src={surferIcon} alt=''/>
+                </div>
             </div>
 
             <div className='weatherInfo'>
                 <img className='weatherIcon' src={weatherIcon} alt='' />
-                <p className='temp'>{Math.round(weatherData?.main?.temp)}°</p>
-                <p className='desc'>{weatherData?.weather?.[0]?.description}</p>
-                <p className='city'>{weatherData?.name}</p>
+                <div>
+                    <div>
+                        <p className='temp'>{Math.round(weatherData?.main?.temp)}°</p>
+                        <p className='desc'>{weatherData?.weather?.[0]?.description}</p>
+                    </div>
+                    <p className='city'>{weatherData?.name}</p>
+                </div>
             </div>
 
             <div className='otherInfo'>
@@ -146,7 +212,7 @@ const NormalMode = () => {
                     <p>{weatherData?.sys?.sunset && formatTime(weatherData.sys.sunset, weatherData.timezone)}</p>
                 </div>
             </div>
-            <div className='threeDayInfo'>
+            <div className='daysInfo'>
                 {error ? (
                     <p className="error">{error}</p>
                 ) : dailyForecast?.list ? (

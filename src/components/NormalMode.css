@@ -1,3 +1,7 @@
+:root {
+    --text-color: #000;
+    --background-color: #FFF4E9;
+}
 
 .container{
     display: flex;
@@ -7,40 +11,49 @@
     min-height: 100vh;
 }
 
+/* Header */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 0.5em;
+    padding: 0 2em;
+}
+
 .searchBar{
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-top: 35px;
+    width: 40%;
 }
 
 .searchBar input{
-    height: 38px;
     border: none;
     outline: none;
-    padding-left: 25px;
-    font-size: 20px;
-    width: 30rem;
-    border-radius: 50px;
-    background: #FFF4E9;
+    padding-left: 0.8em;
+    font-size: 1.5em;
+    height: 1.5em;
+    width: 100%;
+    border-radius: 1em;
+    background: var(--background-color);
 }
 
 .searchBar img{
-    width: 60px;
-    padding: 15px;
+    width: 2.5em;
     border-radius: 50%;
     cursor: pointer;
 }
 
+.searchButton {
+    margin-left: 0.8em;
+}
+
 .switchMode{
-    position: absolute;
-    top: 35px;
-    right: 50px;
-    width: 50px;
-    height: 50px;
-    padding: 15px;
+    width: 3em;
+    height: 3em;
     border-radius: 50%;
-    background: #FFF4E9;
+    background: var(--background-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -52,11 +65,8 @@
 }
 
 .popUpMessage{
-    position: absolute;
-    top: 25px;
-    left: 50px;
     border-radius: 20px;
-    background: #FFF4E9;    
+    background: var(--background-color);    
     width: 190px;
     height: 80px;
     display: flex;
@@ -66,7 +76,7 @@
 .message{
     width: 195px;
     height: 43px;
-    color: #000;
+    color: var(--text-color);
     font-size: 15px;
     margin-left: 20px;
 }
@@ -78,22 +88,34 @@
     margin-right: 15px;
 }
 
+/* Weather info */
+
 .weatherInfo{
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
 }
 
 .weatherInfo img{
-    width: 180px;
-    height: 180px;
-    margin-right: 100px;
-    margin-top: 70px;
+    width: 10em;
+    height: 10em;
+    margin: 3em 2em 0 0;
+}
+
+.weatherInfo > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.weatherInfo > div > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .temp{
     font-size: 4rem;
-    margin-right: 20px;
+    margin-right: 0.2em;
 }
 
 .desc{
@@ -101,18 +123,18 @@
 }
 
 .city{
-    position: absolute;
     font-size: 4rem;
-    margin-top: 170px;
-    margin-left: 290px;
 }
+
+/* Other info */
 
 .otherInfo{
     display: flex;
     align-items: center;
-    gap: 40px; 
     justify-content: space-between;
-    margin-top: 70px;
+    flex-wrap: wrap;
+    gap: 2em;
+    margin-top: 4em;
 }
 
 .visibility, .humidity, .sunrise, .sunset{
@@ -128,29 +150,39 @@
     padding-left: 10px;
 }
 
+/* Days info */
 
-.threeDayInfo{
+.daysInfo{
     display: flex;
     align-items: center;
-    gap: 40px; 
     justify-content: space-between;
-    margin-top: 80px;
+    flex-wrap: wrap;
+    gap: 2em;
+    margin-top: 4em;
 }
 
-.dayOne, .dayTwo, .dayThree{
-    width: 210px;
-    height: 210px;
-    border-radius: 30px;
-    background: #FFF4E9;
+.day{
+    width: 13em;
+    height: 13em;
+    border-radius: 2em;
+    background: var(--background-color);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.threeDayInfo img{
-    width: 100px;
-    padding: 10px;
+.daysInfo img{
+    align-self: flex-start;
+    width: 7em;
+    height: 7em;
+    padding: 1em;
 }
 
-.threeDayInfo p {
-    margin-left: 100px;
+.daysInfo p {
+    align-self: flex-end;
+    margin-right: 0.8em;
     font-size: 2rem;
 }
 
@@ -159,17 +191,43 @@
     outline: none;
     background-color: transparent; 
     padding: 0;
-  }
-
+}
 
 @keyframes bellIcon{
-    0% {transform: rotate(0deg);}
-    25% {transform: rotate(5deg);}
-    50% {transform: rotate(0deg);}
-    75% {transform: rotate(-7deg);}
-    100% {transform: rotate(0deg);}
+    0% {transform: rotate(7deg);}
+    50% {transform: rotate(-7deg);}
+    100% {transform: rotate(7deg);}
 }
 
 .bellIcon{
     animation: bellIcon 0.5s ease-in-out infinite;
+}
+
+/* Search container */
+
+.search-container {
+    position: relative;
+    flex: 1;
+}
+
+.suggestions-dropdown {
+    position: absolute;
+    top: 120%;
+    left: 0;
+    right: 0;
+    background-color: var(--background-color);
+    border-radius: 0.8em;
+    max-height: 10em;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+.suggestion-item {
+    padding: 0.2em 0.4em;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.suggestion-item:hover {
+    background-color: #f5f5f5;
 }
