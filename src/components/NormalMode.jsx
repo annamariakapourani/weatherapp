@@ -42,24 +42,15 @@ const NormalMode = () => {
     };
 
     const getPopUpMessage = (weatherId) => {
-        if (weatherId >= 200 && weatherId <= 232) {
-            return "There is a thunderstorm comming! Stay inside.";
-          } else if (weatherId >= 300 && weatherId <= 321) {
-            return "Do not forget your umbrella!"; 
-          } else if (weatherId >= 500 && weatherId <= 531) {
-            return "Do not forget your umbrella!"; 
-          } else if (weatherId >= 600 && weatherId <= 622) {
-            return "It is snowing! Go outside make a snowman!"; 
-          } else if (weatherId >= 701 && weatherId <= 781) {
-            return "It is foggy! Drive safe!";
-          } else if (weatherId === 800) {
-            return "Do not forget your sunscreen!"; 
-          } else if (weatherId >= 801 && weatherId <= 804) {
-            return "Cloudy skies ahead!"; 
-          } else {
-            return "Check the weather!"; 
-          }
-      }
+        if (weatherId >= 200 && weatherId <= 232) return "There is a thunderstorm comming! Stay inside.";
+        else if (weatherId >= 300 && weatherId <= 321) return "Do not forget your umbrella!"; 
+        else if (weatherId >= 500 && weatherId <= 531)  return "Do not forget your umbrella!"; 
+        else if (weatherId >= 600 && weatherId <= 622) return "It is snowing! Go outside make a snowman!"; 
+        else if (weatherId >= 701 && weatherId <= 781) return "It is foggy! Drive safe!";
+        else if (weatherId === 800) return "Do not forget your sunscreen!"; 
+        else if (weatherId >= 801 && weatherId <= 804)  return "Cloudy skies ahead!"; 
+        else return "Check the weather!"; 
+    }
 
     const formatTime = (timestamp, timezone) => {
         const date = new Date((timestamp + timezone) * 1000);
@@ -162,7 +153,7 @@ const NormalMode = () => {
         <div className="container">
             <div className='header'>
                 <div className='popUpMessage'>
-                    <p>{weatherData ? getPopUpMessage(weatherData.weather[0].id) : "Loading..."}</p>
+                    <p className='message'>{weatherData ? getPopUpMessage(weatherData.weather[0].id) : "Loading..."}</p>
                     <img className='bellIcon' src={bellIcon} alt='' />
                 </div>
 
