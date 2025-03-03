@@ -30,7 +30,6 @@ const NormalMode = () => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const FORECAST_DAYS = 3;
 
-    // Weather icon mapping function remains the same
     const getWeatherIcon = (weatherId) => {
         if (weatherId >= 200 && weatherId <= 232) return thunderstorm;
         else if (weatherId >= 300 && weatherId <= 321) return drizzle;
@@ -143,7 +142,7 @@ const NormalMode = () => {
         <div className="container">
             <div className='header'>
                 <div className='popUpMessage'>
-                    <p className='message'>Don' t forget<br />your sunscreen!</p>
+                    <p className='message'>Don't forget<br />your sunscreen!</p>
                     <img className='bellIcon' src={bellIcon} alt='' />
                 </div>
 
