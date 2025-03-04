@@ -23,11 +23,11 @@ import snow from "../assets/snow.png"
 import fog from "../assets/fog.png"
 
 function CurrentTime() {
-    const [time, setTime] = useState(new Date().toLocaleTimeString('en-US'));
+    const [time, setTime] = useState(new Date());
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setTime(new Date().toLocaleTimeString('en-US'));
+            setTime(new Date());
         }, 1000); // Update time every second
 
         return () => clearInterval(interval);
@@ -35,7 +35,7 @@ function CurrentTime() {
 
     return (
         <div>
-            <p>Current Time: {time}</p>
+            <p>{time.toLocaleTimeString()} {time.toDateString()}</p>
         </div>
     )
 }
