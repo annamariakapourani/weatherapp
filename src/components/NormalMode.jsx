@@ -49,7 +49,7 @@ const NormalMode = () => {
     const [error, setError] = useState(null);
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const FORECAST_DAYS = 3;
+    const FORECAST_DAYS = 5;
 
     const getWeatherIcon = (weatherId) => {
         if (weatherId >= 200 && weatherId <= 232) return thunderstorm;
@@ -233,7 +233,7 @@ const NormalMode = () => {
                 </div>
                 <div className='visibility'>
                     <img src={visibility} alt=''/>
-                    <p>{weatherData?.visibility}</p>
+                    <p>{weatherData?.visibility} km</p>
                 </div>
                 <div className='humidity'>
                     <img src={humidity} alt=''/>
