@@ -233,7 +233,7 @@ const NormalMode = () => {
                 </div>
                 <div className='visibility'>
                     <img src={visibility} alt=''/>
-                    <p>{weatherData?.visibility} km</p>
+                    <p>{weatherData?.visibility/1000} km</p>
                 </div>
                 <div className='humidity'>
                     <img src={humidity} alt=''/>
