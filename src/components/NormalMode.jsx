@@ -1,6 +1,10 @@
+// Imports
 import './NormalMode.css'
 import React from 'react';
-import IconSearch from "../assets/IconSearch.png"
+import axios from 'axios';
+import { useEffect, useState, useCallback } from 'react';
+
+// Icons
 import surferIcon from "../assets/surferIcon.png"
 import bellIcon from "../assets/bellIcon.png"
 import sunIcon from "../assets/sunIcon.png"
@@ -9,15 +13,32 @@ import humidity from "../assets/humidity.png"
 import sunrise from "../assets/sunrise.png"
 import sunset from "../assets/sunset.png"
 import sunCloudy from "../assets/sunCloudy.png"
-import axios from 'axios';
-import { useEffect, useState, useCallback } from 'react';
+import IconSearch from "../assets/IconSearch.png"
 
+// Images
 import thunderstorm from "../assets/thunderstorm.png"
 import drizzle from "../assets/drizzle.png"
 import rain from "../assets/rain.png"
 import snow from "../assets/snow.png"
 import fog from "../assets/fog.png"
 
+function CurrentTime() {
+    const [time, setTime] = useState(new Date().toLocaleTimeString('en-US'));
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTime(new Date().toLocaleTimeString('en-US'));
+        }, 1000); // Update time every second
+
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <div>
+            <p>Current Time: {time}</p>
+        </div>
+    )
+}
 
 const NormalMode = () => {
     const [city, setCity] = useState('London');
@@ -61,6 +82,7 @@ const NormalMode = () => {
         });
     };
 
+    // Fecth data for the selected city
     const fetchData = useCallback(async () => {
         if (!city) return;
         try {
@@ -80,6 +102,7 @@ const NormalMode = () => {
         }
     }, [city]);
 
+    // Give n day forecast at given location
     const fetchDailyForecast = useCallback(async () => {
         if (!coordinates.lat || !coordinates.lon) return;
         try {
@@ -97,6 +120,7 @@ const NormalMode = () => {
         }
     }, [coordinates]);
 
+    // Give 5 city suggestion on given input
     const fetchSuggestions = useCallback(async (query) => {
         if (!query || query.length < 2) {
             setSuggestions([]);
@@ -190,6 +214,8 @@ const NormalMode = () => {
                 </div>
             </div>
 
+            <CurrentTime />
+
             <div className='weatherInfo'>
                 <img className='weatherIcon' src={weatherIcon} alt='' />
                 <div>
@@ -222,6 +248,7 @@ const NormalMode = () => {
                     <p>{weatherData?.sys?.sunset && formatTime(weatherData.sys.sunset, weatherData.timezone)}</p>
                 </div>
             </div>
+
             <div className='daysInfo'>
                 {error ? (
                     <p className="error">{error}</p>

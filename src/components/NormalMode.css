@@ -7,13 +7,16 @@ body {
     background: #ffdab9ed;
 }
 
+p {
+    font-size: 1.5em;
+}
+
 .container{
     display: flex;
     flex-direction: column;
     align-items: center;
     background: linear-gradient(180deg, #F08080 0%, #F4978E 25.6%, #F8AD9D 46.6%, #FBC4AB 68.6%, #ffdab9ed 100%);
     min-height: 100vh;
-    max-height: 100vh;
 }
 
 /* Header */
@@ -233,7 +236,7 @@ body {
     background-color: #f5f5f5;
 }
 
-@media only screen and (max-width: 600px){
+@media only screen and (max-width: 600px) {
     .popUpMessage {
         display: none;
     }
@@ -269,9 +272,20 @@ body {
     }
 
     .otherInfo {
-        flex-direction: column;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 90%;
+        gap: 1.5em;
+        justify-content: center;
+    }
+
+    .feelsLike,
+    .visibility,
+    .humidity,
+    .sunrise,
+    .sunset {
+        width: 100%;
+        justify-content: center;
     }
 
     .daysInfo {
