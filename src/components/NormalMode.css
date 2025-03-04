@@ -75,7 +75,7 @@ p {
 .popUpMessage{
     border-radius: 1em;
     background: var(--background-color);    
-    width: 10em;
+    width: 12em;
     height: 5em;
     display: flex;
     align-items: center;
