@@ -1,8 +1,9 @@
 // Imports
 import './NormalMode.css'
-import React from 'react';
+import React, { use } from 'react';
 import axios from 'axios';
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Icons
 import surferIcon from "../assets/surferIcon.png"
@@ -50,6 +51,8 @@ const NormalMode = () => {
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const FORECAST_DAYS = 5;
+
+    const navigate = useNavigate(); // Navigate to different route
 
     const getWeatherIcon = (weatherId) => {
         if (weatherId >= 200 && weatherId <= 232) return thunderstorm;
@@ -148,8 +151,8 @@ const NormalMode = () => {
     }, []);
 
     useEffect(() => {
-        if (city) fetchData();
-    }, [city, fetchData]);
+        fetchData();
+    }, []);
 
     useEffect(() => {
         if (coordinates.lat && coordinates.lon) fetchDailyForecast();
@@ -169,6 +172,7 @@ const NormalMode = () => {
     };
 
     const handleSubmit = (e) => {
+        console.log("Submit");
         e.preventDefault();
         fetchData();
     };
@@ -189,6 +193,7 @@ const NormalMode = () => {
                             value={city}
                             onChange={handleInputChange}
                             onFocus={() => city.length >= 2 && setShowSuggestions(true)}
+                            onBlur={() => setShowSuggestions(false)}
                         />
                         {showSuggestions && suggestions.length > 0 && (
                             <div className="suggestions-dropdown">
@@ -209,7 +214,7 @@ const NormalMode = () => {
                     </button>
                 </form>
 
-                <div className='switchMode'>
+                <div className='switchMode' onClick={() => navigate('/surfer')}>
                     <img src={surferIcon} alt=''/>
                 </div>
             </div>
@@ -252,12 +257,12 @@ const NormalMode = () => {
             <div className='daysInfo'>
                 {error ? (
                     <p className="error">{error}</p>
-                ) : dailyForecast?.list ? (
+                ) : dailyForecast ? (
                     dailyForecast.list.map((day, index) => (
                         <div key={index} className='day'>
-                            <p>{new Date((day.dt + (index*24*60*60)) * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</p>
                             <img src={getWeatherIcon(day.weather[0].id)} alt={day.weather[0].description} />
                             <p>{Math.round(day.main.temp)}°</p>
+                            <p>{new Date((day.dt + (index*24*60*60)) * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</p>
                         </div>
                     ))
                 ) : (
