@@ -5,6 +5,7 @@
 
 body {
     background: #ffdab9ed;
+    color: var(--text-color);
 }
 
 p {
@@ -45,6 +46,7 @@ p {
     width: 100%;
     border-radius: 1em;
     background: var(--background-color);
+    color: var(--text-color);
 }
 
 .searchBar img{
@@ -83,7 +85,6 @@ p {
 }
 
 .message{
-    color: var(--text-color);
     font-size: 1em;
     margin-left: 0.5em;
 }
