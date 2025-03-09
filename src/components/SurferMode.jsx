@@ -27,8 +27,7 @@ import CamberSands from "../assets/CamberSands.png"
 import star from "../assets/star.png"
 import quote from "../assets/quote.png"
 import wave from "../assets/wave.png"
-
-
+import arrow from "../assets/arrow.png"
 
 
 
@@ -68,15 +67,6 @@ function CurrentTime() {
     return (
         <div style={{marginTop: '1em'}}>
             <p>{time.toLocaleTimeString()} {time.toDateString()}</p>
-        </div>
-    );
-}
-
-function WeatherInfoCard({ icon, label, value }) {
-    return (
-        <div className={label.toLowerCase().replace(' ', '')}>
-            {icon && <img src={icon} alt={label} />}
-            <p>{value}</p>
         </div>
     );
 }
@@ -326,13 +316,16 @@ function SurferMode() {
                         <div className='beachRating'> 
                             <p className='rating'>4.5</p>
                             <img className='star' src={star}/>
-                        </div>                      
+                        </div> 
+                        <div className='arrow'>
+                            <img src={arrow}/>
+                        </div>                     
                     </div>
                 </div>
             </div>
 
             <div className='cardsContainer'>
-            <div className='beachCard'>
+                <div className='beachCard'>
                     <img className='beachImg' src={CamberSands}/>
                     <div className='infoSection'>
                         <p className='beachName'>Camber Sands</p>
@@ -340,15 +333,17 @@ function SurferMode() {
                         <div className='beachRating'> 
                             <p className='rating'>4.5</p>
                             <img className='star' src={star}/>
-                        </div>                      
+                        </div> 
+                        <div className='arrow'>
+                            <img src={arrow}/>
+                        </div>                     
                     </div>
                 </div>
             </div>
             
             <div className='quoteSection'>
                 <img className='quoteIcon' src={quote}/>
-                {/* <p className='quote'>Good vibes and good tides</p> */}
-                <p className='quote'>Tides?????????????????????????</p>
+                <p className='quote'>Ride the wave, chase the sun, and love the ocean.</p>
             </div>
 
             <div className='info'>

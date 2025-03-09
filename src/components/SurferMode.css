@@ -111,6 +111,17 @@ p {
     font-size: 1em;
 }
 
+.arrow{
+    position: absolute;
+    top: 5em;
+    right: 0.4em;
+}
+
+.arrow img{
+    width: 1em;
+}
+
+
 .quoteSection{
     position: absolute;
     margin-left: 50em;
@@ -132,7 +143,7 @@ p {
 .quote{
     position: absolute;
     font-size: 1.1em;
-    margin-left: 5em;
+    margin-left: 2em;
 }
 
 .info{
@@ -156,6 +167,5 @@ p {
 
 .infoText{
     font-size: 1.2em;
-    
-
 }
+
