@@ -347,7 +347,8 @@ function SurferMode() {
             
             <div className='quoteSection'>
                 <img className='quoteIcon' src={quote}/>
-                <p className='quote'>Good vibes and good tides</p>
+                {/* <p className='quote'>Good vibes and good tides</p> */}
+                <p className='quote'>Tides?????????????????????????</p>
             </div>
 
             <div className='info'>
