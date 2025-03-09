@@ -56,7 +56,7 @@ function CurrentTime() {
     }, []);
 
     return (
-        <div>
+        <div style={{marginTop: '1em'}}>
             <p>{time.toLocaleTimeString()} {time.toDateString()}</p>
         </div>
     );
