@@ -226,7 +226,6 @@ function SurferMode() {
     };
 
 
-
     return (
         <div className="container2">
             <div className='header'>
@@ -294,13 +293,13 @@ function SurferMode() {
             ) : (
                 <>
                     <div className='weatherInfo'>
-                        <img className='weatherIcon' src={weatherIcon} alt={weatherData?.weather?.[0]?.description || 'Weather'} />
+                        <img className='weatherIcon2' src={weatherIcon} alt={weatherData?.weather?.[0]?.description || 'Weather'} />
                         <div>
                             <div>
                                 <p className='temp'>{weatherData ? Math.round(weatherData.main.temp) : '--'}°</p>
-                                <p className='desc'>{weatherData?.weather?.[0]?.description || 'Loading...'}</p>
+                                <p className='desc2'>{weatherData?.weather?.[0]?.description || 'Loading...'}</p>
                             </div>
-                            <p className='city'>{weatherData?.name || 'Loading...'}</p>
+                            <p className='city2'>{weatherData?.name || 'Loading...'}</p>
                         </div>
                     </div>
                 </>

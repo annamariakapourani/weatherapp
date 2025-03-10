@@ -31,6 +31,18 @@ p {
     }
 }
 
+.desc2{
+    font-size: 3rem;
+}
+.city2{
+    font-size: 3rem;
+}
+.weatherIcon2{
+    width: 8em;
+    height: 8em;
+    margin: 3em 2em 3em 0;
+}
+
 .filter{
     width: 3em;
     height: 3em;
@@ -41,7 +53,6 @@ p {
     justify-content: center;
     cursor: pointer;
     margin-right: 70em;
-    margin-top: 2em;
 }
 
 .filterIcon{
@@ -121,14 +132,13 @@ p {
     width: 1em;
 }
 
-
 .quoteSection{
     position: absolute;
     margin-left: 50em;
     width: 32em;
     height: 2.2em;
     background-color: #FFF4E9;
-    margin-top: 28em;
+    margin-top: 27em;
     border-radius: 0.6em;
     padding-left: 2em;
     display: flex;
