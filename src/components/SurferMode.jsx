@@ -27,11 +27,9 @@ import snow from "../assets/snow.png"
 import fog from "../assets/fog.png"
 import CamberSands from "../assets/CamberSands.png"
 import star from "../assets/star.png"
-import quote from "../assets/quote.png"
+import quoteIcon from "../assets/quote.png"
 import wave from "../assets/wave.png"
 import arrow from "../assets/arrow.png"
-
-
 
 
 
@@ -56,6 +54,14 @@ const WEATHER_MESSAGES = {
     clouds: "Cloudy skies ahead!",
     default: "Check the weather!"
 };
+
+const quotes = [
+    "Ride the wave, chase the sun, and love the ocean.",
+    "Let the sea set you free and ride the waves.",
+    "Life’s a wave—catch it, ride it, and enjoy it.",
+    "Sun, surf, salt, and sand—happiness is where waves land.",
+    "Keep calm, paddle on, and ride the waves of life."
+];
 
 
 function CurrentTime() {
@@ -88,6 +94,18 @@ function SurferMode() {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const FORECAST_DAYS = 5;
     const [popupButton, setPopupButton] = useState(false);
+
+    const [quote, setQuote] = useState(quotes[0]);
+
+    useEffect(() => {
+        const internal = setInterval(() => {
+            setQuote(previousQuote => {
+                return quotes[(quotes.indexOf(previousQuote)+1) % quotes.length];
+            });
+        }, 9999)
+
+        return () => clearInterval(internal);
+    }, [])
 
     const navigate = useNavigate();
 
@@ -395,8 +413,8 @@ function SurferMode() {
             </div>
             
             <div className='quoteSection'>
-                <img className='quoteIcon' src={quote}/>
-                <p className='quote'>Ride the wave, chase the sun, and love the ocean.</p>
+                <img className='quoteIcon' src={quoteIcon}/>
+                <p className='quote'>{quote}</p>
             </div>
 
             <div className='info'>
