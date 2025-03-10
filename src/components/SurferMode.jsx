@@ -1,7 +1,9 @@
 import './SurferMode.css';
+import './PopUp.css'
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import PopUp from "../components/PopUp"
 
 
 // Icons
@@ -28,6 +30,8 @@ import star from "../assets/star.png"
 import quote from "../assets/quote.png"
 import wave from "../assets/wave.png"
 import arrow from "../assets/arrow.png"
+
+
 
 
 
@@ -83,6 +87,7 @@ function SurferMode() {
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const FORECAST_DAYS = 5;
+    const [popupButton, setPopupButton] = useState(false);
 
     const navigate = useNavigate();
 
@@ -301,9 +306,58 @@ function SurferMode() {
                 </>
                     )}
 
+            <div>
+                <div className='filter' onClick={() => setPopupButton(true)}>
+                    <img className='filterIcon' src={filterIcon}/>
+                </div>
+                
+                <PopUp trigger={popupButton} setTrigger={setPopupButton}>
+                <h3 className='name'>Filters</h3>
 
-            <div className='filter'>
-                <img className='filterIcon' src={filterIcon}/>
+                    <div className='filterOptions'>
+                        <div className='filterRow'>
+                            <label>Wind</label>
+                            <select>
+                            <option>Select filter</option>
+                            <option>Light</option>
+                            <option>Medium</option>
+                            <option>Strong</option>
+                            </select>
+                        </div>
+
+                        <div className='filterRow'>
+                            <label>Wave</label>
+                            <select>
+                            <option>Select filter</option>
+                            <option>Small</option>
+                            <option>Medium</option>
+                            <option>Large</option>
+                            </select>
+                        </div>
+
+                        <div className='filterRow'>
+                            <label>Crowd</label>
+                            <select>
+                            <option>Select filter</option>
+                            <option>Light</option>
+                            <option>Medium</option>
+                            <option>Large</option>
+                            </select>
+                        </div>
+
+                        <div className='filterRow'>
+                            <label>Wind</label>
+                            <select>
+                            <option>Select filter</option>
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </PopUp>
+
             </div>
 
             

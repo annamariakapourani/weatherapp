@@ -1,0 +1,94 @@
+
+.popup{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.2);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.popup-inner{
+    position: relative;
+    padding: 32px;
+    width: 25em;
+    height: 25em;
+    background-color: #FFF4E9;
+    border-radius: 1em;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-inner .name{
+    position: absolute;
+    margin-bottom: 6em;
+    font-size: 3em;
+}
+
+
+.filterOptions{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+.filterRow{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.filterRow label{
+    width: 100px;
+    font-size: 1.5em;
+}
+
+
+.filterRow select {
+    flex: 1;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 10em;
+}
+
+.buttons{
+    position: absolute;
+    display: flex;
+    border: none;
+    cursor: pointer;
+    margin-top: 19em;
+    gap: 3em;
+}
+
+.apply-btn, .cancel-btn, .clear-btn{
+    border: none;
+    background: none;
+    font-size: 1em;
+    width: 4em;
+    height: 2em;
+    border-radius: 0.3em;
+}
+
+.apply-btn{
+    background-color: #72BBCE;
+}
+
+.cancel-btn{
+    color: #72BBCE;
+    background-color: #fff;
+    border: 1px solid #72BBCE;
+}
+
+.clear-btn{
+    color: #F25C54;
+}
