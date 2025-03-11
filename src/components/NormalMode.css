@@ -162,6 +162,7 @@ p {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 2em;
     margin: 4em 0;
 }
