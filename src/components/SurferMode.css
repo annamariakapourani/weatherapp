@@ -20,6 +20,25 @@ p {
     min-height: 100vh;
 }
 
+.weatherInfo2{
+    display: flex;
+    align-items: center;
+
+}
+
+.weatherInfo2 > div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 5em;
+}
+
+.weatherInfo2 > div > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 .warningIcon{
     width: 2em;
     animation: blinker 3s linear infinite;
@@ -40,7 +59,7 @@ p {
 .weatherIcon2{
     width: 8em;
     height: 8em;
-    margin: 3em 2em 3em 0;
+    margin: 3em 2em 7em 0;
 }
 
 .filter{
@@ -53,10 +72,16 @@ p {
     justify-content: center;
     cursor: pointer;
     margin-right: 70em;
+    margin-top: -6em;
+    
 }
 
 .filterIcon{
     width: 2em;
+
+}
+.cards{
+    margin-top: -3.2em;
 }
 
 .cardsContainer{
@@ -138,7 +163,7 @@ p {
     width: 35em;
     height: 2.2em;
     background-color: #FFF4E9;
-    margin-top: 27em;
+    margin-top: 25em;
     border-radius: 0.6em;
     padding-left: 2em;
     display: flex;
@@ -163,7 +188,7 @@ p {
     margin: 1em;
     align-items: center;
     margin-right: 18em;
-    margin-top: 33em;
+    margin-top: 30em;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -178,4 +203,5 @@ p {
 .infoText{
     font-size: 1.2em;
 }
+
 

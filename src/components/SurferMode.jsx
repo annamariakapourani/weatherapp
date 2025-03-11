@@ -310,7 +310,7 @@ function SurferMode() {
                 </div>
             ) : (
                 <>
-                    <div className='weatherInfo'>
+                    <div className='weatherInfo2'>
                         <img className='weatherIcon2' src={weatherIcon} alt={weatherData?.weather?.[0]?.description || 'Weather'} />
                         <div>
                             <div>
@@ -377,7 +377,7 @@ function SurferMode() {
 
             </div>
 
-            
+            <div className='cards'>
             <div className='cardsContainer'>
                 <div className='beachCard'>
                     <img className='beachImg' src={CamberSands}/>
@@ -410,6 +410,7 @@ function SurferMode() {
                         </div>                     
                     </div>
                 </div>
+            </div>
             </div>
             
             <div className='quoteSection'>
