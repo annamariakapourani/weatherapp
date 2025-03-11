@@ -364,6 +364,12 @@ function SurferMode() {
                             </div>                     
                         </div>
                     </div>
+                    <div className='beachMoreInfo'>
+                        <p className='beachNameMoreInfo'>Camber Sands</p>
+                        <div className='beachDetailsDivMoreInfo'>
+                            <p className='beachDetailsMoreInfo'>Wave height <br />Wave direction <br />Wave period <br />Wind wave height <br />Wind wave direction <br />Swell wave height <br />Swell wave direction</p>
+                        </div>
+                    </div>
                 </div>
             </div>
                 
