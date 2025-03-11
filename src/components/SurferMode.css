@@ -162,6 +162,25 @@
     width: 1em;
 }
 
+.beachMoreInfo {
+    width: 30em;
+    height: 18em;
+    border-radius: 1em;
+    background: #FFF4E9;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+}
+
+.beachNameMoreInfo {
+    padding-top: 1em;
+    padding-left: 1em;
+}
+
+.beachDetailsDivMoreInfo {
+    
+}
+
 .quoteSection{
     max-width: 25em;
     min-width: 50%;
