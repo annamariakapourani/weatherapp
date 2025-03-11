@@ -10,10 +10,6 @@ import PopUp from "../components/PopUp"
 import homeIcon from "../assets/homeIcon.png"
 import warning from "../assets/warning.png"
 import sunIcon from "../assets/sunIcon.png"
-import visibility from "../assets/visibility.png"
-import humidity from "../assets/humidity.png"
-import sunrise from "../assets/sunrise.png"
-import sunset from "../assets/sunset.png"
 import sunCloudy from "../assets/sunCloudy.png"
 import IconSearch from "../assets/IconSearch.png"
 import filterIcon from "../assets/filterIcon.png"
@@ -45,14 +41,14 @@ const WEATHER_ICONS = {
 };
 
 const WEATHER_MESSAGES = {
-    thunderstorm: "There is a thunderstorm coming! Stay inside.",
-    drizzle: "Do not forget your umbrella!",
-    rain: "Do not forget your umbrella!",
-    snow: "It is snowing! Go outside make a snowman!",
-    fog: "It is foggy! Drive safe!",
-    clear: "Do not forget your sunscreen!",
-    clouds: "Cloudy skies ahead!",
-    default: "Check the weather!"
+    thunderstorm: "Storm incoming! Stay out of the water.",
+    drizzle: "Light rain? Could be glassy waves!",
+    rain: "Rain’s fine, just watch for currents!",
+    snow: "Snowy surf? Only for the bold!",
+    fog: "Foggy lineup—stay aware!",
+    clear: "Sunny and clean! Sunscreen up!",
+    clouds: "Cloudy but surf’s still up!",
+    default: "Check the surf report!"
 };
 
 const quotes = [
