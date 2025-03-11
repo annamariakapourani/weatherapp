@@ -382,15 +382,9 @@ function SurferMode() {
                             </div>                     
                         </div>
                     </div>
-                    <div className='beachMoreInfo'>
-                        <p className='beachNameMoreInfo'>Camber Sands</p>
-                        <div className='beachDetailsDivMoreInfo'>
-                            <p className='beachDetailsMoreInfo'>Wave height <br />Wave direction <br />Wave period <br />Wind wave height <br />Wind wave direction <br />Swell wave height <br />Swell wave direction</p>
-                        </div>
-                    </div>
                 </div>
             </div>
-                
+
                 <div className='additionalInfo'>
                     <div className='quoteSection'>
                         <img className='quoteIcon' src={quoteIcon} alt='Quote'/>
@@ -400,6 +394,38 @@ function SurferMode() {
                     <div className='info'>
                         <img className='waveIcon' src={wave} alt='Wave'/>
                         <p className='infoText'>Click on beach<br/>to see more info</p>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div className='beachMoreInfo'>
+                <div>
+                    <p className='beachNameMoreInfo'>Camber Sands</p>
+                </div>
+
+                <div className='beachDetailsDivMoreInfo'>
+                    <div className='beachDetailsTitlesDivMoreInfo'>
+                    <ul className='beachDetailsTitlesMoreInfo'>
+                        <li>Wave height</li>
+                        <li>Wave direction</li>
+                        <li>Wave period</li>
+                        <li>Wind wave height</li>
+                        <li>Wind wave direction</li>
+                        <li>Swell wave height</li>
+                        <li>Swell wave direction</li>
+                    </ul>
+                    </div>
+                    <div className='beachDetailsResultsDivMoreInfo'>
+                        <ul className='beachDetailsResultsMoreInfo'>
+                            <li>0.6m</li>
+                            <li>WSW</li>
+                            <li>11s</li>
+                            <li>0.1m</li>
+                            <li>SW</li>
+                            <li>0.6m</li>
+                            <li>WSW</li>
+                        </ul>
                     </div>
                 </div>
             </div>

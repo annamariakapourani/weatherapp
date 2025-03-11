@@ -164,21 +164,44 @@
 
 .beachMoreInfo {
     width: 30em;
-    height: 18em;
+    height: 21em;
     border-radius: 1em;
     background: #FFF4E9;
     position: relative;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    margin-left: 50em;
 }
 
 .beachNameMoreInfo {
     padding-top: 1em;
     padding-left: 1em;
+    padding-bottom: 0.5em;
+    line-height: 1.5em;
+    font-weight: bold;
+}
+
+.beachDetailsTitlesMoreInfo{
+    list-style: none;
+    font-size: 1.1em;
+    line-height: 2em;
+    padding-left: 1.4em;
+    padding-right: 4em;
+}
+
+.beachDetailsResultsMoreInfo {
+    list-style: none;
+    font-size: 1.1em;
+    line-height: 2em;
+    padding-left: 1em;
 }
 
 .beachDetailsDivMoreInfo {
-    
+    display: flex;
+}
+
+.beachDetailsResultsDivMoreInfo {
+    border-left: 1px solid black;;
 }
 
 .quoteSection{
