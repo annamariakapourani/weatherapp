@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import PopUp from "../components/PopUp"
+import { CurrentTime } from '../utils/CurrentTime';
 
 
 // Icons
@@ -58,25 +59,6 @@ const quotes = [
     "Sun, surf, salt, and sand—happiness is where waves land.",
     "Keep calm, paddle on, and ride the waves of life."
 ];
-
-
-function CurrentTime() {
-    const [time, setTime] = useState(new Date());
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setTime(new Date());
-        }, 1000); // Update time every second
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <div style={{marginTop: '1em'}}>
-            <p>{time.toLocaleTimeString()} {time.toDateString()}</p>
-        </div>
-    );
-}
-
 
 function SurferMode() {
     const [city, setCity] = useState('London');
@@ -289,7 +271,7 @@ function SurferMode() {
                 </div>
             </div>
 
-            <CurrentTime />
+            <CurrentTime timezone={weatherData?.timezone} />
                         
             {error ? (
                 <div className="error-container">

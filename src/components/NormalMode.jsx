@@ -4,6 +4,7 @@ import React from 'react';
 import axios from 'axios';
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CurrentTime } from '../utils/CurrentTime';
 
 // Icons
 import surferIcon from "../assets/surferIcon.png"
@@ -44,23 +45,6 @@ const WEATHER_MESSAGES = {
     clouds: "Cloudy skies ahead!",
     default: "Check the weather!"
 };
-
-function CurrentTime() {
-    const [time, setTime] = useState(new Date());
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setTime(new Date());
-        }, 1000); // Update time every second
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <div style={{marginTop: '1em'}}>
-            <p>{time.toLocaleTimeString()} {time.toDateString()}</p>
-        </div>
-    );
-}
 
 function WeatherInfoCard({ icon, label, value }) {
     return (
@@ -287,7 +271,7 @@ const NormalMode = () => {
                 </div>
             </div>
 
-            <CurrentTime />
+            <CurrentTime timezone={weatherData?.timezone} />
 
             {error ? (
                 <div className="error-container">
