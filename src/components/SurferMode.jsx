@@ -301,121 +301,106 @@ function SurferMode() {
                 </div>
             ) : (
                 <>
-                    <div className='weatherInfo2'>
-                        <img className='weatherIcon2' src={weatherIcon} alt={weatherData?.weather?.[0]?.description || 'Weather'} />
+                    <div className='weatherInfo'>
+                        <img className='weatherIcon' src={weatherIcon} alt={weatherData?.weather?.[0]?.description || 'Weather'} />
                         <div>
                             <div>
                                 <p className='temp'>{weatherData ? Math.round(weatherData.main.temp) : '--'}°</p>
-                                <p className='desc2'>{weatherData?.weather?.[0]?.description || 'Loading...'}</p>
+                                <p className='desc'>{weatherData?.weather?.[0]?.description || 'Loading...'}</p>
                             </div>
-                            <p className='city2'>{weatherData?.name || 'Loading...'}</p>
+                            <p className='city'>{weatherData?.name || 'Loading...'}</p>
                         </div>
                     </div>
                 </>
                     )}
 
-            <div>
-                <div className='filter' onClick={() => setPopupButton(true)}>
-                    <img className='filterIcon' src={filterIcon} alt='Filter'/>
-                </div>
-                
-                <PopUp trigger={popupButton} setTrigger={setPopupButton}>
-                <h3 className='name'>Filters</h3>
+            
 
-                    <div className='filterOptions'>
-                        <div className='filterRow'>
-                            <label>Wind</label>
-                            <select>
-                            <option>Select filter</option>
-                            <option>Light</option>
-                            <option>Medium</option>
-                            <option>Strong</option>
-                            </select>
-                        </div>
-
-                        <div className='filterRow'>
-                            <label>Wave</label>
-                            <select>
-                            <option>Select filter</option>
-                            <option>Small</option>
-                            <option>Medium</option>
-                            <option>Large</option>
-                            </select>
-                        </div>
-
-                        <div className='filterRow'>
-                            <label>Crowd</label>
-                            <select>
-                            <option>Select filter</option>
-                            <option>Light</option>
-                            <option>Medium</option>
-                            <option>Large</option>
-                            </select>
-                        </div>
-
-                        <div className='filterRow'>
-                            <label>Wind</label>
-                            <select>
-                            <option>Select filter</option>
-                            <option>Low</option>
-                            <option>Medium</option>
-                            <option>High</option>
-                            </select>
-                        </div>
-                    </div>
-
-                </PopUp>
-
-            </div>
-
-
+        <div className='beaches'>
             <div className='cards'>
-            <div className='cardsContainer'>
-                <div className='beachCard'>
-                    <img className='beachImg' src={CamberSands} alt='Beach'/>
-                    <div className='infoSection'>
-                        <p className='beachName'>Camber Sands</p>
-                        <p className='beachInfo'>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>                        
-                        <div className='beachRating'> 
-                            <p className='rating'>4.5</p>
-                            <img className='star' src={star} alt='Star'/>
-                        </div> 
-                        <div className='arrow'>
-                            <img src={arrow} alt='Arrow'/>
-                        </div>                     
+                <div className='cardsContainer'>
+                    <div className='filterDetails'>
+                        <div className='filter' onClick={() => setPopupButton(true)}>
+                            <img className='filterIcon' src={filterIcon} alt='Filter' />
+                        </div>
+
+                        <PopUp trigger={popupButton} setTrigger={setPopupButton}>
+                            <h3 className='name'>Filters</h3>
+
+                            <div className='filterOptions'>
+                                <div className='filterRow'>
+                                    <label>Wind</label>
+                                    <select>
+                                        <option>Select filter</option>
+                                        <option>Light</option>
+                                        <option>Medium</option>
+                                        <option>Strong</option>
+                                    </select>
+                                </div>
+
+                                <div className='filterRow'>
+                                    <label>Wave</label>
+                                    <select>
+                                        <option>Select filter</option>
+                                        <option>Small</option>
+                                        <option>Medium</option>
+                                        <option>Large</option>
+                                    </select>
+                                </div>
+
+                                <div className='filterRow'>
+                                    <label>Crowd</label>
+                                    <select>
+                                        <option>Select filter</option>
+                                        <option>Light</option>
+                                        <option>Medium</option>
+                                        <option>Large</option>
+                                    </select>
+                                </div>
+
+                                <div className='filterRow'>
+                                    <label>Wind</label>
+                                    <select>
+                                        <option>Select filter</option>
+                                        <option>Low</option>
+                                        <option>Medium</option>
+                                        <option>High</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </PopUp>
+
+                    </div>
+                    <div className='beachCard'>
+                        <img className='beachImg' src={CamberSands} alt='Beach' />
+                        <div className='infoSection'>
+                            <p className='beachName'>Camber Sands</p>
+                            <p className='beachInfo'>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>                        
+                            <div className='beachRating'> 
+                                <p className='rating'>4.5</p>
+                                <img className='star' src={star} alt='Star'/>
+                            </div> 
+                            <div className='arrow'>
+                                <img src={arrow} alt='Arrow'/>
+                            </div>                     
+                        </div>
                     </div>
                 </div>
             </div>
+                
+                <div className='additionalInfo'>
+                    <div className='quoteSection'>
+                        <img className='quoteIcon' src={quoteIcon} alt='Quote'/>
+                        <p className='quote'>{quote}</p>
+                    </div>
 
-            <div className='cardsContainer'>
-                <div className='beachCard'>
-                    <img className='beachImg' src={CamberSands} alt='Beach'/>
-                    <div className='infoSection'>
-                        <p className='beachName'>Camber Sands</p>
-                        <p className='beachInfo'>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>                        
-                        <div className='beachRating'> 
-                            <p className='rating'>4.5</p>
-                            <img className='star' src={star} alt='Star'/>
-                        </div> 
-                        <div className='arrow'>
-                            <img src={arrow} alt='Arrow'/>
-                        </div>                     
+                    <div className='info'>
+                        <img className='waveIcon' src={wave} alt='Wave'/>
+                        <p className='infoText'>Click on beach<br/>to see more info</p>
                     </div>
                 </div>
             </div>
-            </div>
-            
-            <div className='quoteSection'>
-                <img className='quoteIcon' src={quoteIcon} alt='Quote'/>
-                <p className='quote'>{quote}</p>
-            </div>
-
-            <div className='info'>
-                <img className='waveIcon' src={wave} alt='Wave'/>
-                <p className='infoText'>Click on beach<br/>to see more info</p>
-            </div>
-            
-
         </div>
     );
 };

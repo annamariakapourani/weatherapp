@@ -1,15 +1,9 @@
-:root {
-    --text-color: #000;
-    --background-color: #FFF4E9;
-}
-
-body {
-    background: #ffdab9ed;
-    color: var(--text-color);
-}
-
-p {
-    font-size: 1.5em;
+.beaches {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
 }
 
 .container2{
@@ -71,9 +65,11 @@ p {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    margin-right: 70em;
-    margin-top: -6em;
-    
+}
+
+.filterDetails {
+    display: flex;
+    flex-direction: column;
 }
 
 .filterIcon{
@@ -81,24 +77,30 @@ p {
 
 }
 .cards{
-    margin-top: -3.2em;
+    width: 60%;
+    /* margin-top: -3.2em; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .cardsContainer{
     display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 2em;
+    gap: 1em;
     margin: 1em 0;
-    margin-right: 33em;
+    flex-direction: column;
+    /* width: 100%; */
+    /* margin-right: 33em; */
 }
 
 .beachCard{
-    width: 40em;
+    width: 30em;
     height: 8.5em;
     border-radius: 1em;
     background: #FFF4E9;
     position: relative;
+    display: flex;
+    flex-direction: row;
 }
 
 .beachImg{
@@ -110,15 +112,18 @@ p {
 }
 
 .infoSection{
-    position: absolute;
+    /* position: absolute;
     top: 0;
-    right: 0;
-    margin: 1em;
+    right: 0; */
+    /* margin: 1em; */
+    width: 60%;
+    padding: 1em;
+    position: relative;
 }
 
 .beachName{
     font-size: 1em;
-    margin-right: 13em;
+    /* margin-right: 13em; */
     font-weight: bold;
 }
 
@@ -129,9 +134,9 @@ p {
 }
 
 .beachRating{
-    position: absolute;
+    /* position: absolute;
     top: 0;
-    right: 0;
+    right: 0; */
     margin: 1em 1;
     display: flex;
     align-items: center;
@@ -158,41 +163,45 @@ p {
 }
 
 .quoteSection{
-    position: absolute;
-    margin-left: 50em;
-    width: 35em;
-    height: 2.2em;
+    max-width: 25em;
+    min-width: 50%;
+    padding: 0.4em;
     background-color: #FFF4E9;
-    margin-top: 25em;
     border-radius: 0.6em;
-    padding-left: 2em;
     display: flex;
     align-items: center;
 }
 
 .quoteIcon{
     width: 1.6em;
-    margin-right: 1em;
+    /* margin-right: 1em; */
 }
 
 .quote{
-    position: absolute;
+    /* position: absolute; */
     font-size: 1.1em;
-    margin-left: 2em;
+    margin-left: 1em;
 }
 
 .info{
-    position: absolute;
+    /* position: absolute;
     top: 0;
-    right: 0;
+    right: 0; */
     margin: 1em;
     align-items: center;
-    margin-right: 18em;
-    margin-top: 30em;
+    /* margin-right: 18em; */
+    /* margin-top: 30em; */
     display: flex;
     flex-direction: column;
     justify-content: center;
     text-align: center;
+}
+
+.additionalInfo {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .waveIcon{
@@ -203,5 +212,3 @@ p {
 .infoText{
     font-size: 1.2em;
 }
-
-
