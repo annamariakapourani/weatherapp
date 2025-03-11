@@ -128,15 +128,6 @@ function SurferMode() {
         return WEATHER_MESSAGES.default;
     }, []);
 
-    const formatTime = (timestamp, timezone = 0) => {
-        const date = new Date((timestamp + timezone) * 1000);
-        return date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-    };
-
     // Fetch data for the selected city
     const fetchData = useCallback(async () => {
         if (!city) return;
@@ -325,7 +316,7 @@ function SurferMode() {
 
             <div>
                 <div className='filter' onClick={() => setPopupButton(true)}>
-                    <img className='filterIcon' src={filterIcon}/>
+                    <img className='filterIcon' src={filterIcon} alt='Filter'/>
                 </div>
                 
                 <PopUp trigger={popupButton} setTrigger={setPopupButton}>
@@ -377,19 +368,20 @@ function SurferMode() {
 
             </div>
 
+
             <div className='cards'>
             <div className='cardsContainer'>
                 <div className='beachCard'>
-                    <img className='beachImg' src={CamberSands}/>
+                    <img className='beachImg' src={CamberSands} alt='Beach'/>
                     <div className='infoSection'>
                         <p className='beachName'>Camber Sands</p>
                         <p className='beachInfo'>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>                        
                         <div className='beachRating'> 
                             <p className='rating'>4.5</p>
-                            <img className='star' src={star}/>
+                            <img className='star' src={star} alt='Star'/>
                         </div> 
                         <div className='arrow'>
-                            <img src={arrow}/>
+                            <img src={arrow} alt='Arrow'/>
                         </div>                     
                     </div>
                 </div>
@@ -397,16 +389,16 @@ function SurferMode() {
 
             <div className='cardsContainer'>
                 <div className='beachCard'>
-                    <img className='beachImg' src={CamberSands}/>
+                    <img className='beachImg' src={CamberSands} alt='Beach'/>
                     <div className='infoSection'>
                         <p className='beachName'>Camber Sands</p>
                         <p className='beachInfo'>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>                        
                         <div className='beachRating'> 
                             <p className='rating'>4.5</p>
-                            <img className='star' src={star}/>
+                            <img className='star' src={star} alt='Star'/>
                         </div> 
                         <div className='arrow'>
-                            <img src={arrow}/>
+                            <img src={arrow} alt='Arrow'/>
                         </div>                     
                     </div>
                 </div>
@@ -414,12 +406,12 @@ function SurferMode() {
             </div>
             
             <div className='quoteSection'>
-                <img className='quoteIcon' src={quoteIcon}/>
+                <img className='quoteIcon' src={quoteIcon} alt='Quote'/>
                 <p className='quote'>{quote}</p>
             </div>
 
             <div className='info'>
-                <img className='waveIcon' src={wave}/>
+                <img className='waveIcon' src={wave} alt='Wave'/>
                 <p className='infoText'>Click on beach<br/>to see more info</p>
             </div>
             
