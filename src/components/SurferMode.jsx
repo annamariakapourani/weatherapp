@@ -80,7 +80,7 @@ function SurferMode() {
             setQuote(previousQuote => {
                 return quotes[(quotes.indexOf(previousQuote)+1) % quotes.length];
             });
-        }, 9999)
+        }, 1000 * 5); // Change quote every 5 seconds
 
         return () => clearInterval(internal);
     }, [])
@@ -214,7 +214,7 @@ function SurferMode() {
 
 
     return (
-        <div className="container2">
+        <div className="container containerSurfers">
             <div className='header'>
                 <div className='popUpMessage'>
                     <p className='message'>
@@ -355,14 +355,14 @@ function SurferMode() {
                         <div className='infoSection'>
                             <p className='beachName'>Camber Sands</p>
                             <p className='beachInfo'>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>                        
-                            <div className='beachRating'> 
-                                <p className='rating'>4.5</p>
-                                <img className='star' src={star} alt='Star'/>
-                            </div> 
-                            <div className='arrow'>
-                                <img src={arrow} alt='Arrow'/>
-                            </div>                     
                         </div>
+                        <div className='beachRating'> 
+                            <p className='rating'>4.5</p>
+                            <img className='star' src={star} alt='Star'/>
+                        </div> 
+                        <div className='arrow'>
+                            <img src={arrow} alt='Arrow'/>
+                        </div>                     
                     </div>
                 </div>
             </div>

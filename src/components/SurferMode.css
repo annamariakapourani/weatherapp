@@ -1,3 +1,9 @@
+/* Main Layout */
+
+.containerSurfers {
+    background: linear-gradient(180deg, #72BBCE 0%, #8DC8D8 25.6%, #A7D5E1 46.6%, #C2E2EA 68.6%, #DCEEF3 100%);
+}
+
 .beaches {
     display: flex;
     flex-direction: row;
@@ -6,57 +12,41 @@
     width: 90%;
 }
 
-.container2{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: linear-gradient(180deg, #72BBCE 0%, #8DC8D8 25.6%, #A7D5E1 46.6%, #C2E2EA 68.6%, #DCEEF3 100%);
-    min-height: 100vh;
-}
+/* Controls */
 
-.weatherInfo2{
-    display: flex;
-    align-items: center;
-
-}
-
-.weatherInfo2 > div {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 5em;
-}
-
-.weatherInfo2 > div > div {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.warningIcon{
+.warningIcon {
     width: 2em;
     animation: blinker 3s linear infinite;
     margin-right: 0.5rem;
 }
-@keyframes blinker{
-    50%{
+
+@keyframes blinker {
+    50% {
         opacity: 0;
     }
 }
 
-.desc2{
-    font-size: 3rem;
-}
-.city2{
-    font-size: 3rem;
-}
-.weatherIcon2{
-    width: 8em;
-    height: 8em;
-    margin: 3em 2em 7em 0;
+.filterIcon {
+    width: 2em;
 }
 
-.filter{
+.quoteIcon {
+    width: 1.6em;
+}
+
+.waveIcon {
+    width: 7em;
+    margin-bottom: 1em;
+}
+
+.star {
+    width: 1em;
+    height: 1em;
+}
+
+/* Filter Controls */
+
+.filter {
     width: 3em;
     height: 3em;
     border-radius: 50%;
@@ -72,45 +62,44 @@
     flex-direction: column;
 }
 
-.filterIcon{
-    width: 2em;
+/* Beach Content */
 
-}
-.cards{
+.cards {
     width: 60%;
-    /* flex-grow: 2; */
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.cardsContainer{
+.cardsContainer {
+    width: 80%;
     display: flex;
     gap: 1em;
     flex-direction: column;
-    /* width: 90%; */
 }
+
+/* Beach Cards */
 
 .beachCard {
     width: 100%;
     min-height: 10em;
     height: 10em;
     border-radius: 1em;
-    background: #FFF4E9;
+    background: var(--background-color);
     position: relative;
     display: flex;
     flex-direction: row;
     overflow: hidden;
 }
 
-.beachImg{
+.beachImg {
     width: 30%;
     height: 100%;
     object-fit: cover;
     flex-shrink: 0;
 }
 
-.infoSection{
+.infoSection {
     width: 60%;
     padding: 1em;
     position: relative;
@@ -118,52 +107,48 @@
     flex-direction: column;
 }
 
-.beachName{
+.beachName {
     font-size: 1em;
-    /* margin-right: 13em; */
     font-weight: bold;
 }
 
-.beachInfo{
+.beachInfo {
     font-size: 1em;
     inline-size: 15em;
     margin-top: 0.5em;
 }
 
-.beachRating{
-    /* position: absolute;
-    top: 0;
-    right: 0; */
+.beachRating {
+    position: absolute;
+    top: 1em;
+    right: 1em;
     margin: 1em 1;
     display: flex;
     align-items: center;
     gap: 0.5em;
 }
 
-.star{
-    width: 1em;
-    height: 1em;
-}
-
-.rating{
+.rating {
     font-size: 1em;
 }
 
-.arrow{
+.arrow {
     position: absolute;
-    top: 5em;
-    right: 0.4em;
+    bottom: 1em;
+    right: 1em;
 }
 
-.arrow img{
+.arrow img {
     width: 1em;
 }
+
+/* Beach Details Panel */
 
 .beachMoreInfo {
     width: 30em;
     height: 21em;
     border-radius: 1em;
-    background: #FFF4E9;
+    background: var(--background-color);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -178,7 +163,11 @@
     font-weight: bold;
 }
 
-.beachDetailsTitlesMoreInfo{
+.beachDetailsDivMoreInfo {
+    display: flex;
+}
+
+.beachDetailsTitlesMoreInfo {
     list-style: none;
     font-size: 1.1em;
     line-height: 2em;
@@ -193,62 +182,69 @@
     padding-left: 1em;
 }
 
-.beachDetailsDivMoreInfo {
-    display: flex;
-}
-
 .beachDetailsResultsDivMoreInfo {
-    border-left: 1px solid black;;
+    border-left: 1px solid black;
 }
 
-.quoteSection{
+/* Quote section */
+
+.quoteSection {
     max-width: 25em;
     min-width: 50%;
     padding: 0.4em;
-    background-color: #FFF4E9;
+    background-color: var(--background-color);
     border-radius: 0.6em;
     display: flex;
     align-items: center;
+    transition: all 1s ease-in-out;
+    height: auto;
+    min-height: 3.5em;
 }
 
-.quoteIcon{
-    width: 1.6em;
-    /* margin-right: 1em; */
-}
-
-.quote{
-    /* position: absolute; */
+.quote {
     font-size: 1.1em;
     margin-left: 1em;
+    animation: fadeInOut 5000ms ease-in-out infinite;
+    width: 100%;
+    min-height: 1.5em;
 }
 
-.info{
-    /* position: absolute;
-    top: 0;
-    right: 0; */
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/*  Additional Info  */
+
+.additionalInfo {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.info {
     margin: 1em;
     align-items: center;
-    /* margin-right: 18em; */
-    /* margin-top: 30em; */
     display: flex;
     flex-direction: column;
     justify-content: center;
     text-align: center;
 }
 
-.additionalInfo {
-    width: 40%;
-    /* flex-grow: 5; */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.waveIcon{
-    width: 7em;
-    margin-bottom: 1em;
-}
-
-.infoText{
+.infoText {
     font-size: 1.2em;
 }
