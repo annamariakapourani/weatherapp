@@ -82,7 +82,7 @@ function SurferMode() {
     useEffect(() => {
         const internal = setInterval(() => {
             setQuote(previousQuote => {
-                return quotes[(quotes.indexOf(previousQuote)+1) % quotes.length];
+                return quotes[(quotes.indexOf(previousQuote) + 1) % quotes.length];
             });
         }, 1000 * 5); // Change quote every 5 seconds
 
@@ -113,7 +113,7 @@ function SurferMode() {
     // Fetch data for the selected city
     const fetchData = useCallback(async () => {
         if (!city) return;
-        
+
         setIsLoading(true);
         try {
             setError(null);
@@ -137,7 +137,7 @@ function SurferMode() {
     // Give n day forecast at given location
     const fetchDailyForecast = useCallback(async () => {
         if (!coordinates.lat || !coordinates.lon) return;
-        
+
         setIsLoading(true);
         try {
             setError(null);
@@ -191,10 +191,10 @@ function SurferMode() {
     // get the nearest beaches
 
     const fetchBeaches = useCallback(async () => {
-        if (!coordinates.lat || !coordinates.lon) {return;}
+        if (!coordinates.lat || !coordinates.lon) { return; }
         setBeachesLoading(true);
         const radius = 50000; // (in meters). Finds all the beaches within this radius
-        const {lat, lon} = coordinates;
+        const { lat, lon } = coordinates;
         // the actual query
         const query = ` [out:json];
         node(around:${radius}, ${lat}, ${lon})["natural"="beach"];
@@ -218,6 +218,7 @@ function SurferMode() {
                     unNamedBeachCounter++;
                 };
                 newNearestBeaches[name] = {
+                    name : name,
                     lat: beach.lat,
                     lon: beach.lon,
                     // TODO: make it get a valid info, rating, etc...
@@ -284,10 +285,10 @@ function SurferMode() {
             <div className='header'>
                 <div className='popUpMessage'>
                     <p className='message'>
-                        {isLoading 
-                            ? "Loading..." 
-                            : weatherData 
-                                ? getPopUpMessage(weatherData.weather[0].id) 
+                        {isLoading
+                            ? "Loading..."
+                            : weatherData
+                                ? getPopUpMessage(weatherData.weather[0].id)
                                 : "Check the weather!"}
                     </p>
                     <img className='warningIcon' src={warning} alt='Notification' />
@@ -325,20 +326,20 @@ function SurferMode() {
                     </button>
                 </form>
 
-                <div 
-                    className='switchMode' 
+                <div
+                    className='switchMode'
                     onClick={() => navigate(-1)}
-                    role="button" 
-                    tabIndex={0} 
+                    role="button"
+                    tabIndex={0}
                     aria-label="Switch to normal mode"
                     onKeyDown={(e) => e.key === 'Enter' && navigate(-1)}
                 >
-                    <img src={homeIcon} alt='Switch to normal mode'/>
+                    <img src={homeIcon} alt='Switch to normal mode' />
                 </div>
             </div>
 
             <CurrentTime timezone={weatherData?.timezone} />
-                        
+
             {error ? (
                 <div className="error-container">
                     <p className="error">{error}</p>
@@ -356,111 +357,111 @@ function SurferMode() {
                         </div>
                     </div>
                 </>
-                    )}
+            )}
 
-            
 
-        <div className='beaches'>
-            <div className='cards'>
-                <div className='cardsContainer'>
-                    <div className='filterDetails'>
-                        <div className='filter' onClick={() => setPopupButton(true)}>
-                            <img className='filterIcon' src={filterIcon} alt='Filter' />
-                        </div>
 
-                        <PopUp trigger={popupButton} setTrigger={setPopupButton}>
-                            <h3 className='name'>Filters</h3>
-
-                            <div className='filterOptions'>
-                                <div className='filterRow'>
-                                    <label>Wind</label>
-                                    <select>
-                                        <option>Select filter</option>
-                                        <option>Light</option>
-                                        <option>Medium</option>
-                                        <option>Strong</option>
-                                    </select>
-                                </div>
-
-                                <div className='filterRow'>
-                                    <label>Wave</label>
-                                    <select>
-                                        <option>Select filter</option>
-                                        <option>Small</option>
-                                        <option>Medium</option>
-                                        <option>Large</option>
-                                    </select>
-                                </div>
-
-                                <div className='filterRow'>
-                                    <label>Crowd</label>
-                                    <select>
-                                        <option>Select filter</option>
-                                        <option>Light</option>
-                                        <option>Medium</option>
-                                        <option>Large</option>
-                                    </select>
-                                </div>
-
-                                <div className='filterRow'>
-                                    <label>Wind</label>
-                                    <select>
-                                        <option>Select filter</option>
-                                        <option>Low</option>
-                                        <option>Medium</option>
-                                        <option>High</option>
-                                    </select>
-                                </div>
+            <div className='beaches'>
+                <div className='cards'>
+                    <div className='cardsContainer'>
+                        <div className='filterDetails'>
+                            <div className='filter' onClick={() => setPopupButton(true)}>
+                                <img className='filterIcon' src={filterIcon} alt='Filter' />
                             </div>
 
-                        </PopUp>
+                            <PopUp trigger={popupButton} setTrigger={setPopupButton}>
+                                <h3 className='name'>Filters</h3>
 
+                                <div className='filterOptions'>
+                                    <div className='filterRow'>
+                                        <label>Wind</label>
+                                        <select>
+                                            <option>Select filter</option>
+                                            <option>Light</option>
+                                            <option>Medium</option>
+                                            <option>Strong</option>
+                                        </select>
+                                    </div>
+
+                                    <div className='filterRow'>
+                                        <label>Wave</label>
+                                        <select>
+                                            <option>Select filter</option>
+                                            <option>Small</option>
+                                            <option>Medium</option>
+                                            <option>Large</option>
+                                        </select>
+                                    </div>
+
+                                    <div className='filterRow'>
+                                        <label>Crowd</label>
+                                        <select>
+                                            <option>Select filter</option>
+                                            <option>Light</option>
+                                            <option>Medium</option>
+                                            <option>Large</option>
+                                        </select>
+                                    </div>
+
+                                    <div className='filterRow'>
+                                        <label>Wind</label>
+                                        <select>
+                                            <option>Select filter</option>
+                                            <option>Low</option>
+                                            <option>Medium</option>
+                                            <option>High</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </PopUp>
+
+                        </div>
+                        {beachesLoading ?
+                            (<p className="loadingBeaches"><span>.</span><span>.</span><span>.</span></p>) :
+                            Object.keys(nearestBeaches).length > 0 ? (
+                                Object.keys(nearestBeaches).map(beachName => (
+                                    <BeachCard
+                                        key={beachName}
+                                        beachName={beachName}
+                                        beachInfo={nearestBeaches[beachName].beachInfo}
+                                        rating={nearestBeaches[beachName].rating}
+                                        onArrowClick={onArrowClick}
+                                    />
+                                ))
+                            ) : (
+                                <p>No beaches found...</p>
+                            )}
                     </div>
-                    {beachesLoading ? 
-                        (<p className="loadingBeaches"><span>.</span><span>.</span><span>.</span></p>) : 
-                    Object.keys(nearestBeaches).length > 0 ? (
-                        Object.keys(nearestBeaches).map(beachName => (
-                            <BeachCard
-                                key = {beachName}
-                                beachName = {beachName}
-                                beachInfo = {nearestBeaches[beachName].beachInfo}
-                                rating = {nearestBeaches[beachName].rating}
-                                onArrowClick = {onArrowClick}
-                            />
-                        ))
-                    ) : (
-                        <p>No beaches found...</p>
-                    )}
                 </div>
-            </div>
 
                 <div className='additionalInfo'>
                     <div className='quoteSection'>
-                        <img className='quoteIcon' src={quoteIcon} alt='Quote'/>
+                        <img className='quoteIcon' src={quoteIcon} alt='Quote' />
                         <p className='quote'>{quote}</p>
                     </div>
-
                     <div className='info'>
-                        <img className='waveIcon' src={wave} alt='Wave'/>
-                        <p className='infoText'>Click on beach<br/>to see more info</p>
+                        {(selectedBeach) ? (
+                            <BeachInfo
+                                beachName={selectedBeach.name}
+                                waveHeight={selectedBeach.waveHeight}
+                                waveDirection={selectedBeach.waveDirection}
+                                wavePeriod={selectedBeach.wavePeriod}
+                                windWaveHeight={selectedBeach.windWaveHeight}
+                                windWaveDirection={selectedBeach.windWaveDirection}
+                                swellWaveHeight={selectedBeach.swellWaveHeight}
+                                swellWaveDirection={selectedBeach.swellWaveDirection}
+                            />) : (
+                            <div>
+                                <img className='waveIcon' src={wave} alt='Wave' />
+                                <p className='infoText'>Click on beach<br />to see more info</p>
+                            </div>)
+                        }
                     </div>
                 </div>
-                
+
             </div>
 
-            {(selectedBeach) ? (
-                <BeachInfo 
-                    beachName = {selectedBeach.name}
-                    waveHeight = {selectedBeach.waveHeight}
-                    waveDirection = {selectedBeach.waveDirection}
-                    wavePeriod = {selectedBeach.wavePeriod}
-                    windWaveHeight = {selectedBeach.windWaveHeight}
-                    windWaveDirection = {selectedBeach.windWaveDirection}
-                    swellWaveHeight = {selectedBeach.swellWaveHeight}
-                    swellWaveDirection = {selectedBeach.swellWaveDirection}
-                />) : (<></>)
-            }
-            
         </div>
     );
 };

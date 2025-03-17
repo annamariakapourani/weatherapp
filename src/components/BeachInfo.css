@@ -2,21 +2,24 @@
 
 .beachMoreInfo {
     width: 30em;
-    height: 21em;
+    height: auto;
     border-radius: 1em;
     background: var(--background-color);
     position: relative;
     display: flex;
     flex-direction: column;
-    margin-left: 50em;
+    align-items: center;
+    margin: 0 auto;
+    padding: 1em;
 }
 
-.beachNameMoreInfo {
+.beachName {
     padding-top: 1em;
     padding-left: 1em;
     padding-bottom: 0.5em;
     line-height: 1.5em;
     font-weight: bold;
+    text-align: center;
 }
 
 .beachDetailsDivMoreInfo {
