@@ -73,6 +73,9 @@ function SurferMode() {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const FORECAST_DAYS = 5;
     const [popupButton, setPopupButton] = useState(false);
+    const [nearestBeaches, setNearestBeaches] = useState({});
+    const [beachesLoading, setBeachesLoading] = useState(false);
+    const [selectedBeach, setSelectedBeach] = useState(null);
 
     const [quote, setQuote] = useState(quotes[0]);
 
@@ -187,6 +190,56 @@ function SurferMode() {
 
     // get the nearest beaches
 
+    const fetchBeaches = useCallback(async () => {
+        if (!coordinates.lat || !coordinates.lon) {return;}
+        setBeachesLoading(true);
+        const radius = 50000; // (in meters). Finds all the beaches within this radius
+        const {lat, lon} = coordinates;
+        // the actual query
+        const query = ` [out:json];
+        node(around:${radius}, ${lat}, ${lon})["natural"="beach"];
+        out;`;
+        const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+        let unNamedBeachCounter = 1;
+        try {
+            const response = await axios.get(url);
+            const beachesData = response.data.elements;
+            if (!beachesData || beachesData.length === 0) {
+                console.log('No beaches found...');
+                setNearestBeaches({});
+                return;
+            }
+            // if there are beaches, store them each in the object and update the state
+            const newNearestBeaches = {};
+            beachesData.forEach(beach => {
+                let name = beach.tags.name;
+                if (!name) {
+                    name = `Beach ${unNamedBeachCounter}`
+                    unNamedBeachCounter++;
+                };
+                newNearestBeaches[name] = {
+                    lat: beach.lat,
+                    lon: beach.lon,
+                    // TODO: make it get a valid info, rating, etc...
+                    info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                    rating: "4.5",
+                    waveHeight: "0.6",
+                    waveDirection: "WSW",
+                    wavePeriod: "11",
+                    windWaveHeight: "0.1",
+                    windWaveDirection: "SW",
+                    swellWaveHeight: "0.6",
+                    swellWaveDirection: "WSW"
+                };
+            })
+            setNearestBeaches(newNearestBeaches);
+        } catch (error) {
+            console.error("Error fetching the beaches:", error)
+            setNearestBeaches({});
+        } finally {
+            setBeachesLoading(false);
+        }
+    }, [coordinates])
 
     // Effects
     useEffect(() => {
@@ -194,8 +247,12 @@ function SurferMode() {
     }, []);
 
     useEffect(() => {
-        if (coordinates.lat && coordinates.lon) fetchDailyForecast();
-    }, [coordinates, fetchDailyForecast]);
+        if (coordinates.lat && coordinates.lon) {
+            fetchDailyForecast();
+            fetchBeaches();
+            setSelectedBeach(null);
+        }
+    }, [coordinates, fetchDailyForecast, fetchBeaches]);
 
     // Event handlers
     const handleInputChange = (e) => {
@@ -214,6 +271,11 @@ function SurferMode() {
     const handleSubmit = (e) => {
         e.preventDefault();
         fetchData();
+    };
+
+    // beach info stuff (updates the info card when user selects a beach)
+    const onArrowClick = (beachName) => {
+        setSelectedBeach(nearestBeaches[beachName]);
     };
 
 
@@ -354,10 +416,21 @@ function SurferMode() {
                         </PopUp>
 
                     </div>
-
-                    <BeachCard beachName = "Camber Sands" beachInfo = "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-                    rating= "4.5"/>
-                    
+                    {beachesLoading ? 
+                        (<p className="loadingBeaches"><span>.</span><span>.</span><span>.</span></p>) : 
+                    Object.keys(nearestBeaches).length > 0 ? (
+                        Object.keys(nearestBeaches).map(beachName => (
+                            <BeachCard
+                                key = {beachName}
+                                beachName = {beachName}
+                                beachInfo = {nearestBeaches[beachName].beachInfo}
+                                rating = {nearestBeaches[beachName].rating}
+                                onArrowClick = {onArrowClick}
+                            />
+                        ))
+                    ) : (
+                        <p>No beaches found...</p>
+                    )}
                 </div>
             </div>
 
@@ -375,8 +448,19 @@ function SurferMode() {
                 
             </div>
 
-            <BeachInfo beachName = "Camber Sands" waveHeight="0.6" waveDirection = "WSW" wavePeriod = "11" 
-            windWaveHeight = "0.1" windWaveDirection = "SW" swellWaveHeight = "0.6" swellWaveDirection = "WSW"/>
+            {(selectedBeach) ? (
+                <BeachInfo 
+                    beachName = {selectedBeach.name}
+                    waveHeight = {selectedBeach.waveHeight}
+                    waveDirection = {selectedBeach.waveDirection}
+                    wavePeriod = {selectedBeach.wavePeriod}
+                    windWaveHeight = {selectedBeach.windWaveHeight}
+                    windWaveDirection = {selectedBeach.windWaveDirection}
+                    swellWaveHeight = {selectedBeach.swellWaveHeight}
+                    swellWaveDirection = {selectedBeach.swellWaveDirection}
+                />) : (<></>)
+            }
+            
         </div>
     );
 };

@@ -4,7 +4,7 @@ import arrow from "../assets/arrow.png"
 import CamberSands from "../assets/CamberSands.png"
 
 
-function BeachCard({beachName, beachInfo, rating}) {
+function BeachCard({beachName, beachInfo, rating, onArrowClick}) {
     return (
         <div className='beachCard'>
             <img className='beachImg' src={CamberSands} alt='Beach Image' />
@@ -17,7 +17,9 @@ function BeachCard({beachName, beachInfo, rating}) {
                 <img className='star' src={star} alt='Star'/>
             </div> 
             <div className='arrow'>
-                <img src={arrow} alt='Arrow'/>
+                <button onClick={() => onArrowClick(beachName)}>
+                    <img src={arrow} alt='Arrow'/>
+                </button>
             </div>                     
         </div>
     );
