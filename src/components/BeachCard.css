@@ -1,0 +1,68 @@
+/* Beach Cards */
+
+.beachCard {
+    width: 100%;
+    min-height: 10em;
+    height: 10em;
+    border-radius: 1em;
+    background: var(--background-color);
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.beachImg {
+    width: 30%;
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.infoSection {
+    width: 60%;
+    padding: 1em;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.beachName {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.beachInfo {
+    font-size: 1em;
+    inline-size: 15em;
+    margin-top: 0.5em;
+}
+
+.beachRating {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    margin: 1em 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.rating {
+    font-size: 1em;
+}
+
+.arrow {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+}
+
+.arrow img {
+    width: 1em;
+}
+
+.star {
+    width: 1em;
+    height: 1em;
+}

@@ -1,10 +1,15 @@
 import './SurferMode.css';
 import './PopUp.css'
+import './BeachCard.css'
+import './BeachInfo.css'
+
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import PopUp from "../components/PopUp"
 import { CurrentTime } from '../utils/CurrentTime';
+import BeachCard from './BeachCard';
+import BeachInfo from './BeachInfo';
 
 
 // Icons
@@ -22,12 +27,8 @@ import drizzle from "../assets/drizzle.png"
 import rain from "../assets/rain.png"
 import snow from "../assets/snow.png"
 import fog from "../assets/fog.png"
-import CamberSands from "../assets/CamberSands.png"
-import star from "../assets/star.png"
 import quoteIcon from "../assets/quote.png"
 import wave from "../assets/wave.png"
-import arrow from "../assets/arrow.png"
-
 
 
 // Weather condition maps
@@ -183,6 +184,9 @@ function SurferMode() {
         },
         []
     );
+
+    // get the nearest beaches
+
 
     // Effects
     useEffect(() => {
@@ -350,20 +354,10 @@ function SurferMode() {
                         </PopUp>
 
                     </div>
-                    <div className='beachCard'>
-                        <img className='beachImg' src={CamberSands} alt='Beach' />
-                        <div className='infoSection'>
-                            <p className='beachName'>Camber Sands</p>
-                            <p className='beachInfo'>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>                        
-                        </div>
-                        <div className='beachRating'> 
-                            <p className='rating'>4.5</p>
-                            <img className='star' src={star} alt='Star'/>
-                        </div> 
-                        <div className='arrow'>
-                            <img src={arrow} alt='Arrow'/>
-                        </div>                     
-                    </div>
+
+                    <BeachCard beachName = "Camber Sands" beachInfo = "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+                    rating= "4.5"/>
+                    
                 </div>
             </div>
 
@@ -381,36 +375,8 @@ function SurferMode() {
                 
             </div>
 
-            <div className='beachMoreInfo'>
-                <div>
-                    <p className='beachNameMoreInfo'>Camber Sands</p>
-                </div>
-
-                <div className='beachDetailsDivMoreInfo'>
-                    <div className='beachDetailsTitlesDivMoreInfo'>
-                    <ul className='beachDetailsTitlesMoreInfo'>
-                        <li>Wave height</li>
-                        <li>Wave direction</li>
-                        <li>Wave period</li>
-                        <li>Wind wave height</li>
-                        <li>Wind wave direction</li>
-                        <li>Swell wave height</li>
-                        <li>Swell wave direction</li>
-                    </ul>
-                    </div>
-                    <div className='beachDetailsResultsDivMoreInfo'>
-                        <ul className='beachDetailsResultsMoreInfo'>
-                            <li>0.6m</li>
-                            <li>WSW</li>
-                            <li>11s</li>
-                            <li>0.1m</li>
-                            <li>SW</li>
-                            <li>0.6m</li>
-                            <li>WSW</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            <BeachInfo beachName = "Camber Sands" waveHeight="0.6" waveDirection = "WSW" wavePeriod = "11" 
+            windWaveHeight = "0.1" windWaveDirection = "SW" swellWaveHeight = "0.6" swellWaveDirection = "WSW"/>
         </div>
     );
 };
