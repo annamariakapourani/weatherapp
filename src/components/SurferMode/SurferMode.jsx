@@ -226,6 +226,7 @@ function SurferMode() {
                     swellWaveHeight: "0.6",
                     swellWaveDirection: "WSW"
                 };
+                newNearestBeaches[name].rating = "4.5"
             })
             setNearestBeaches(newNearestBeaches);
         } catch (error) {
@@ -421,19 +422,19 @@ function SurferMode() {
                         </div>
                         {beachesLoading ?
                             (<p className="loadingBeaches">Searching<span>.</span><span>.</span><span>.</span></p>)
-                            : Object.keys(nearestBeaches).length > 0 ? (
-                                Object.keys(nearestBeaches).map(beachName => (
-                                    <BeachCard
-                                        key={beachName}
-                                        beachName={beachName}
-                                        beachInfo={nearestBeaches[beachName].beachInfo}
-                                        rating={nearestBeaches[beachName].rating}
-                                        onArrowClick={onArrowClick}
-                                    />
-                                ))
-                            ) : (
-                                <p>No beaches found...</p>
-                            )}
+                        : Object.keys(nearestBeaches).length > 0 ? (
+                            Object.keys(nearestBeaches).map(beachName => (
+                                <BeachCard
+                                    key={beachName}
+                                    beachName={beachName}
+                                    beachInfo={nearestBeaches[beachName].info}
+                                    rating={nearestBeaches[beachName].rating}
+                                    onArrowClick={onArrowClick}
+                                />
+                            ))
+                        ) : (
+                            <p>No beaches found...</p>
+                        )}
                     </div>
                 </div>
 

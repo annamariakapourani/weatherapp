@@ -11,7 +11,7 @@ function BeachCard({beachName, beachInfo, rating, onArrowClick}) {
             <img className='beachImg' src={CamberSands} alt='Beach Image' />
             <div className='infoSection'>
                 <p className='beachName'>{beachName}</p>
-                <p className='beachInfo'>{beachInfo}</p>                        
+                <p className='beachInfo'>{beachInfo}</p>       
             </div>
             <div className='beachRating'> 
                 <p className='rating'>{rating}</p>
