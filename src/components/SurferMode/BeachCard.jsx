@@ -1,7 +1,8 @@
 // Images
-import star from "../assets/star.png"
-import arrow from "../assets/arrow.png"
-import CamberSands from "../assets/CamberSands.png"
+import star from "../../assets/star.png"
+import arrow from "../../assets/arrow.png"
+import CamberSands from "../../assets/CamberSands.png"
+import './BeachCard.css'
 
 
 function BeachCard({beachName, beachInfo, rating, onArrowClick}) {

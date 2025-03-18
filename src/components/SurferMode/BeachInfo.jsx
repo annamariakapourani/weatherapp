@@ -1,3 +1,5 @@
+import './BeachInfo.css'
+
 function BeachInfo({beachName, waveHeight, waveDirection, wavePeriod, windWaveHeight, windWaveDirection, swellWaveHeight, swellWaveDirection}) {
     return (
         <div className='beachMoreInfo'>

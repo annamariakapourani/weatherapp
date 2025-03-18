@@ -1,35 +1,28 @@
-import './SurferMode.css';
-import './PopUp.css'
-import './BeachCard.css'
-import './BeachInfo.css'
-
 import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import PopUp from "../components/PopUp"
-import { CurrentTime } from '../utils/CurrentTime';
+import PopUp from "../../utils/PopUp";
+import { CurrentTime } from '../../utils/CurrentTime';
 import BeachCard from './BeachCard';
 import BeachInfo from './BeachInfo';
-
+import './SurferMode.css';
 
 // Icons
-import homeIcon from "../assets/homeIcon.png"
-import warning from "../assets/warning.png"
-import sunIcon from "../assets/sunIcon.png"
-import sunCloudy from "../assets/sunCloudy.png"
-import IconSearch from "../assets/IconSearch.png"
-import filterIcon from "../assets/filterIcon.png"
-
+import homeIcon from "../../assets/homeIcon.png"
+import warning from "../../assets/warning.png"
+import sunIcon from "../../assets/sunIcon.png"
+import sunCloudy from "../../assets/sunCloudy.png"
+import IconSearch from "../../assets/IconSearch.png"
+import filterIcon from "../../assets/filterIcon.png"
 
 // Images
-import thunderstorm from "../assets/thunderstorm.png"
-import drizzle from "../assets/drizzle.png"
-import rain from "../assets/rain.png"
-import snow from "../assets/snow.png"
-import fog from "../assets/fog.png"
-import quoteIcon from "../assets/quote.png"
-import wave from "../assets/wave.png"
-
+import thunderstorm from "../../assets/thunderstorm.png"
+import drizzle from "../../assets/drizzle.png"
+import rain from "../../assets/rain.png"
+import snow from "../../assets/snow.png"
+import fog from "../../assets/fog.png"
+import quoteIcon from "../../assets/quote.png"
+import wave from "../../assets/wave.png"
 
 // Weather condition maps
 const WEATHER_ICONS = {

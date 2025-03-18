@@ -4,25 +4,25 @@ import React from 'react';
 import axios from 'axios';
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CurrentTime } from '../utils/CurrentTime';
+import { CurrentTime } from '../../utils/CurrentTime';
 
 // Icons
-import surferIcon from "../assets/surferIcon.png"
-import bellIcon from "../assets/bellIcon.png"
-import sunIcon from "../assets/sunIcon.png"
-import visibility from "../assets/visibility.png"
-import humidity from "../assets/humidity.png"
-import sunrise from "../assets/sunrise.png"
-import sunset from "../assets/sunset.png"
-import sunCloudy from "../assets/sunCloudy.png"
-import IconSearch from "../assets/IconSearch.png"
+import surferIcon from "./../../assets/surferIcon.png"
+import bellIcon from "../../assets/bellIcon.png"
+import sunIcon from "../../assets/sunIcon.png"
+import visibility from "../../assets/visibility.png"
+import humidity from "../../assets/humidity.png"
+import sunrise from "../../assets/sunrise.png"
+import sunset from "../../assets/sunset.png"
+import sunCloudy from "../../assets/sunCloudy.png"
+import IconSearch from "../../assets/IconSearch.png"
 
 // Images
-import thunderstorm from "../assets/thunderstorm.png"
-import drizzle from "../assets/drizzle.png"
-import rain from "../assets/rain.png"
-import snow from "../assets/snow.png"
-import fog from "../assets/fog.png"
+import thunderstorm from "../../assets/thunderstorm.png"
+import drizzle from "../../assets/drizzle.png"
+import rain from "../../assets/rain.png"
+import snow from "../../assets/snow.png"
+import fog from "../../assets/fog.png"
 
 // Weather condition maps
 const WEATHER_ICONS = {
@@ -49,7 +49,7 @@ const WEATHER_MESSAGES = {
 function WeatherInfoCard({ icon, label, value }) {
     return (
         <div className={label.toLowerCase().replace(' ', '')}>
-            {icon && <img src={icon} alt={label} />}
+            {icon && <img src={icon} alt={label} draggable={false}/>}
             <p>{value}</p>
         </div>
     );
@@ -81,7 +81,7 @@ const NormalMode = () => {
 
     // Helper functions
     const getWeatherIcon = useCallback((weatherId) => {
-        for (const [type, range] of Object.entries(WEATHER_ICONS)) {
+        for (const [, range] of Object.entries(WEATHER_ICONS)) {
             if (range.id === weatherId || (weatherId >= range.min && weatherId <= range.max)) {
                 return range.icon;
             }

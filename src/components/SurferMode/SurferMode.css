@@ -83,7 +83,7 @@
     border-radius: 0.6em;
     display: flex;
     align-items: center;
-    transition: all 1s ease-in-out;
+    transition: all 1s;
     height: auto;
     min-height: 3.5em;
 }

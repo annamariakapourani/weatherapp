@@ -4,8 +4,8 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './index.css';
 
-import NormalMode from './components/NormalMode'
-import SurferMode from './components/SurferMode'
+import NormalMode from './components/NormalMode/NormalMode'
+import SurferMode from './components/SurferMode/SurferMode'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
