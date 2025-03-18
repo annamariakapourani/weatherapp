@@ -69,6 +69,7 @@ function SurferMode() {
     const [nearestBeaches, setNearestBeaches] = useState({});
     const [beachesLoading, setBeachesLoading] = useState(false);
     const [selectedBeach, setSelectedBeach] = useState(null);
+    const [moreInfoSelected, setMoreInfoSelected] = useState(false);
 
     const [quote, setQuote] = useState(quotes[0]);
 
@@ -211,7 +212,7 @@ function SurferMode() {
                     unNamedBeachCounter++;
                 };
                 newNearestBeaches[name] = {
-                    name : name,
+                    name: name,
                     lat: beach.lat,
                     lon: beach.lon,
                     // TODO: make it get a valid info, rating, etc...
@@ -245,6 +246,8 @@ function SurferMode() {
             fetchDailyForecast();
             fetchBeaches();
             setSelectedBeach(null);
+            setNearestBeaches({});
+            setMoreInfoSelected(false);
         }
     }, [coordinates, fetchDailyForecast, fetchBeaches]);
 
@@ -267,9 +270,15 @@ function SurferMode() {
         fetchData();
     };
 
-    // beach info stuff (updates the info card when user selects a beach)
+    // beach info stuff (updates the info card when user selects a beach), and toggles it...
     const onArrowClick = (beachName) => {
-        setSelectedBeach(nearestBeaches[beachName]);
+        if (selectedBeach && moreInfoSelected && beachName === selectedBeach.name) {
+            setMoreInfoSelected(false);
+        }
+        else {
+            setSelectedBeach(nearestBeaches[beachName]);
+            setMoreInfoSelected(true);
+        }
     };
 
 
@@ -411,8 +420,8 @@ function SurferMode() {
 
                         </div>
                         {beachesLoading ?
-                            (<p className="loadingBeaches"><span>.</span><span>.</span><span>.</span></p>) :
-                            Object.keys(nearestBeaches).length > 0 ? (
+                            (<p className="loadingBeaches">Searching<span>.</span><span>.</span><span>.</span></p>)
+                            : Object.keys(nearestBeaches).length > 0 ? (
                                 Object.keys(nearestBeaches).map(beachName => (
                                     <BeachCard
                                         key={beachName}
@@ -434,7 +443,7 @@ function SurferMode() {
                         <p className='quote'>{quote}</p>
                     </div>
                     <div className='info'>
-                        {(selectedBeach) ? (
+                        {(moreInfoSelected) ? (
                             <BeachInfo
                                 beachName={selectedBeach.name}
                                 waveHeight={selectedBeach.waveHeight}
