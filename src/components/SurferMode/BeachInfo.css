@@ -22,6 +22,11 @@
     text-align: center;
 }
 
+.extraInfo {
+    font-weight: bold;
+    text-align: center;
+}
+
 .beachDetailsDivMoreInfo {
     display: flex;
 }
