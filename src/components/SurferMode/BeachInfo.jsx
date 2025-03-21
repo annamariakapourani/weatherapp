@@ -8,7 +8,14 @@ function BeachInfo({beachData}) {
         </div>
             {beachData.hasMarineData ? (<>
                 <div className = 'extraInfo'>
-                    <p>{beachData.updatedAt}</p>
+                    <a
+                        href={`https://www.google.com/maps?q=${beachData.lat},${beachData.lon}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="googleMapsLink"
+                    >
+                        Open in Google Maps
+                    </a>
                 </div>
                 <div className='beachDetailsDivMoreInfo'>
                     <div className='beachDetailsTitlesDivMoreInfo'>

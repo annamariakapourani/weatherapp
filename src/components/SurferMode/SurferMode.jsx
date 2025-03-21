@@ -191,16 +191,39 @@ function SurferMode() {
         setBeachesLoading(true);
 
         // Helper method
-        // TODO: make an actual algorithm that generates an actual rating
-        const generateRating = (waveHeight, waveDirection, wavePeriod, windWaveHeight, windWaveDirection, swellWaveHeight, swellWaveDirection) => {
-            return "4.5";
+        const generateRating = (data) => {
+            const {
+                wave_height, // ideal wave height is between 1.5 and 3m
+                wave_period, //ideal period is 10-15 seconds
+                wave_direction, // wave and swell direction should align (be within 30 degrees)
+                wind_wave_height, // less that 0.5m is ideal
+                wind_wave_direction, // ideally should satisify Math.abs(wind_wave_direction - 180) <= 45
+                swell_wave_height, // 1 - 2.5 is ideal
+                swell_wave_direction // compared with wave_direction (look at its comment)
+            } = data;
+
+            let rating = 0;
+
+            if (wave_height >= 1.5 && wave_height <= 3) rating += 1;
+            if (wave_period >= 10 && wave_period <= 15) rating += 1;
+            if (Math.abs(wave_direction - swell_wave_direction) <= 30) rating += 1;
+            if (wind_wave_height< 0.5) rating += 1;
+            if (Math.abs(wind_wave_direction - 180) <= 45) rating += 1;
+            if (swell_wave_height >= 1 && swell_wave_height <= 2.5) rating += 1;
+
+            // normalise to make it make it between 0-5, and round to 1 dp
+
+            rating = rating * 5 / 6;
+            rating = Math.round(rating * 10) / 10
+
+            return rating;
         };
 
         const radius = 50000; // (in meters). Finds all the beaches within this radius
         const { lat, lon } = coordinates;
         let response;
         try {
-            response = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(`[out:json];node(around:${radius},${lat},${lon})["natural"="beach"];out;`)}`);
+            response = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(`[out:json];(node(around:${radius},${lat},${lon})["natural"="beach"];way(around:50000,lat,lon)["natural"="beach"];relation(around:50000,lat,lon)["natural"="beach"];);out;`)}`);
         } catch (error) {
             console.error("Error fetching the beaches:", error)
             setNearestBeaches({});
@@ -218,6 +241,10 @@ function SurferMode() {
         // Assumes that there are no beaches with the same name in the given radius
         let beachCounter = 0;
         const newNearestBeaches = {};
+        /*
+        TODO: some of the beaches generated return null values. checking them on maps shows that they are not really proper beaches. Should check that a beach is an actual beach, or delete them if they return null values?
+        Also, some beaches are really close to eachother so end up producing the exact same data values. could leave it like that or change it.
+        */
         for (const beach of beachesData) {
             let name = beach.tags.name || `Beach ${++beachCounter}`;
 
@@ -225,7 +252,7 @@ function SurferMode() {
                 name: name,
                 lat: beach.lat,
                 lon: beach.lon,
-                info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+                //info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
             };
 
             // Now get the marine data for each beach
@@ -244,7 +271,7 @@ function SurferMode() {
                 newNearestBeaches[name].windWaveDirection = `${data.wind_wave_direction} ${units.wind_wave_direction}`;
                 newNearestBeaches[name].swellWaveHeight = `${data.swell_wave_height} ${units.swell_wave_height}`;
                 newNearestBeaches[name].swellWaveDirection = `${data.swell_wave_direction} ${units.swell_wave_direction}`;
-                newNearestBeaches[name].rating = generateRating(data.wave_height, data.wave_direction, data.wave_period, data.wind_wave_height, data.wind_wave_direction, data.swell_wave_height, data.swell_wave_direction);
+                newNearestBeaches[name].rating = generateRating(data);
             } catch (error) {
                 // try the next beach if cannot retrieve data
                 console.log("Error fetching marine data for " + name);
@@ -445,7 +472,6 @@ function SurferMode() {
                                     <BeachCard
                                         key={beachName}
                                         beachName={beachName}
-                                        beachInfo={nearestBeaches[beachName].info}
                                         rating={nearestBeaches[beachName].rating}
                                         onArrowClick={onArrowClick}
                                     />

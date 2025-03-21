@@ -5,13 +5,12 @@ import CamberSands from "../../assets/CamberSands.png"
 import './BeachCard.css'
 
 
-function BeachCard({beachName, beachInfo, rating, onArrowClick}) {
+function BeachCard({beachName, rating, onArrowClick}) {
     return (
         <div className='beachCard'>
             <img className='beachImg' src={CamberSands} alt='Beach Image' />
             <div className='infoSection'>
                 <p className='beachName'>{beachName}</p>
-                <p className='beachInfo'>{beachInfo}</p>       
             </div>
             <div className='beachRating'> 
                 <p className='rating'>{rating}</p>
