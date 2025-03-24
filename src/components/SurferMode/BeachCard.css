@@ -20,7 +20,7 @@
 }
 
 .infoSection {
-    width: 60%;
+    width: 80%;
     padding: 1em;
     position: relative;
     display: flex;
@@ -33,9 +33,9 @@
 }
 
 .beachInfo {
-    font-size: 1em;
-    inline-size: 15em;
-    margin-top: 0.5em;
+    width: 100%;
+    font-size: 0.8em;
+    gap: 0.5em;
 }
 
 .beachRating {
@@ -58,19 +58,18 @@
     right: 1em;
 }
 
+button {
+    width: 1em;
+    height: 1em;
+}
+
 .arrow button {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 5px;
     margin: 0;
     outline: none;
-    transition: box-shadow 0.1s ease;
     border-radius: 50%;
-}
-
-.arrow button:hover {
-    box-shadow: 0 0 0 4px #64c9d8;
 }
 
 .arrow img {

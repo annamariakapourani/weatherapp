@@ -1,5 +1,10 @@
 /* Main Layout */
 
+body {
+    background: #DCEEF3 !important;
+    color: var(--text-color);
+}
+
 .containerSurfers {
     background: linear-gradient(180deg, #72BBCE 0%, #8DC8D8 25.6%, #A7D5E1 46.6%, #C2E2EA 68.6%, #DCEEF3 100%);
 }
@@ -91,27 +96,8 @@
 .quote {
     font-size: 1.1em;
     margin-left: 1em;
-    animation: fadeInOut 5000ms ease-in-out infinite;
     width: 100%;
     min-height: 1.5em;
-}
-
-@keyframes fadeInOut {
-    0% {
-        opacity: 0;
-    }
-
-    20% {
-        opacity: 1;
-    }
-
-    80% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-    }
 }
 
 /*  Additional Info  */

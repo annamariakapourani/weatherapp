@@ -57,20 +57,17 @@ const quotes = [
 function SurferMode() {
     const [city, setCity] = useState('London');
     const [weatherData, setWeatherData] = useState(null);
-    const [dailyForecast, setDailyForecast] = useState(null);
     const [weatherIcon, setWeatherIcon] = useState(sunIcon);
     const [isLoading, setIsLoading] = useState(false);
     const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
     const [error, setError] = useState(null);
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const FORECAST_DAYS = 5;
     const [popupButton, setPopupButton] = useState(false);
     const [nearestBeaches, setNearestBeaches] = useState({});
     const [beachesLoading, setBeachesLoading] = useState(false);
     const [selectedBeach, setSelectedBeach] = useState(null);
     const [moreInfoSelected, setMoreInfoSelected] = useState(false);
-
     const [quote, setQuote] = useState(quotes[0]);
 
     useEffect(() => {
@@ -128,28 +125,6 @@ function SurferMode() {
         }
     }, [city, getWeatherIcon]);
 
-    // Give n day forecast at given location
-    const fetchDailyForecast = useCallback(async () => {
-        if (!coordinates.lat || !coordinates.lon) return;
-
-        setIsLoading(true);
-        try {
-            setError(null);
-            const response = await axios.get(
-                `https://api.openweathermap.org/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&units=metric&cnt=${FORECAST_DAYS}&appid=${process.env.REACT_APP_OWM_API_KEY}`
-            );
-            setDailyForecast({
-                list: response.data.list,
-                timezone: response.data.city.timezone
-            });
-        } catch (error) {
-            setError('Failed to fetch forecast data');
-            console.error("Error fetching forecast data:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [coordinates, FORECAST_DAYS]);
-
     // Give 5 city suggestion on given input
     const fetchSuggestions = useCallback(
         async (query) => {
@@ -183,7 +158,6 @@ function SurferMode() {
     );
 
     // get the nearest beaches
-
     const fetchBeaches = useCallback(async () => {
         if (!coordinates.lat || !coordinates.lon) {
             return;
@@ -219,18 +193,19 @@ function SurferMode() {
             return rating;
         };
 
-        const radius = 50000; // (in meters). Finds all the beaches within this radius
-        const { lat, lon } = coordinates;
         let response;
         try {
-            response = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(`[out:json];(node(around:${radius},${lat},${lon})["natural"="beach"];way(around:50000,lat,lon)["natural"="beach"];relation(around:50000,lat,lon)["natural"="beach"];);out;`)}`);
+            // response = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(`[out:json];(node(around:${radius},${lat},${lon})["natural"="beach"];way(around:50000,lat,lon)["natural"="beach"];relation(around:50000,lat,lon)["natural"="beach"];);out;`)}`);
+            const location = city.trim().replace(/\s+/g, '+');
+            response = await axios.get(`https://nominatim.openstreetmap.org/search?q=beach+near+${encodeURIComponent(location)}&format=json&limit=10`)
+            // console.log(response.data)
         } catch (error) {
             console.error("Error fetching the beaches:", error)
             setNearestBeaches({});
             setBeachesLoading(false)
             return;
         }
-        const beachesData = response.data.elements;
+        const beachesData = response.data;
         if (beachesData.length === 0) {
             console.log('No beaches found...');
             setNearestBeaches({});
@@ -239,45 +214,46 @@ function SurferMode() {
         }
         // if there are beaches, store them each in the object and update the state
         // Assumes that there are no beaches with the same name in the given radius
-        let beachCounter = 0;
-        const newNearestBeaches = {};
+        let newNearestBeaches = [];
         /*
         TODO: some of the beaches generated return null values. checking them on maps shows that they are not really proper beaches. Should check that a beach is an actual beach, or delete them if they return null values?
         Also, some beaches are really close to eachother so end up producing the exact same data values. could leave it like that or change it.
         */
         for (const beach of beachesData) {
-            let name = beach.tags.name || `Beach ${++beachCounter}`;
-
-            newNearestBeaches[name] = {
-                name: name,
+            const weatherResponse = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${beach.lat}&lon=${beach.lon}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`);
+            const beachId = newNearestBeaches.length + 1
+            newNearestBeaches[beachId] = {
+                display_name: beach.display_name,
                 lat: beach.lat,
                 lon: beach.lon,
+                temperature: `${Math.round(weatherResponse.data.main.temp)}°C`,
+                description: weatherResponse.data.weather[0].description
                 //info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
             };
 
             // Now get the marine data for each beach
             try {
-                response = await axios.get(`https://marine-api.open-meteo.com/v1/marine?latitude=${beach.lat}&longitude=${beach.lon}&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,swell_wave_height,swell_wave_direction`);
-                newNearestBeaches[name].hasMarineData = true;
+                const response = await axios.get(`https://marine-api.open-meteo.com/v1/marine?latitude=${beach.lat}&longitude=${beach.lon}&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,swell_wave_height,swell_wave_direction`);
+                newNearestBeaches[beachId].hasMarineData = true;
 
                 let data = response.data.current;
                 let units = response.data.current_units;
 
-                newNearestBeaches[name].updatedAt = `${data.time} ${units.time}`;
-                newNearestBeaches[name].waveHeight = `${data.wave_height} ${units.wave_height}`;
-                newNearestBeaches[name].waveDirection = `${data.wave_direction} ${units.wave_direction}`;
-                newNearestBeaches[name].wavePeriod = `${data.wave_period} ${units.wave_period}`;
-                newNearestBeaches[name].windWaveHeight = `${data.wind_wave_height} ${units.wind_wave_height}`;
-                newNearestBeaches[name].windWaveDirection = `${data.wind_wave_direction} ${units.wind_wave_direction}`;
-                newNearestBeaches[name].swellWaveHeight = `${data.swell_wave_height} ${units.swell_wave_height}`;
-                newNearestBeaches[name].swellWaveDirection = `${data.swell_wave_direction} ${units.swell_wave_direction}`;
-                newNearestBeaches[name].rating = generateRating(data);
+                newNearestBeaches[beachId].waveHeight = `${data.wave_height} ${units.wave_height}`;
+                newNearestBeaches[beachId].waveDirection = `${data.wave_direction} ${units.wave_direction}`;
+                newNearestBeaches[beachId].wavePeriod = `${data.wave_period} ${units.wave_period}`;
+                newNearestBeaches[beachId].windWaveHeight = `${data.wind_wave_height} ${units.wind_wave_height}`;
+                newNearestBeaches[beachId].windWaveDirection = `${data.wind_wave_direction} ${units.wind_wave_direction}`;
+                newNearestBeaches[beachId].swellWaveHeight = `${data.swell_wave_height} ${units.swell_wave_height}`;
+                newNearestBeaches[beachId].swellWaveDirection = `${data.swell_wave_direction} ${units.swell_wave_direction}`;
+                newNearestBeaches[beachId].rating = generateRating(data);
             } catch (error) {
                 // try the next beach if cannot retrieve data
-                console.log("Error fetching marine data for " + name);
-                newNearestBeaches[name].hasMarineData = false;
+                console.log("Error fetching marine data for " + beachId);
+                newNearestBeaches[beachId].hasMarineData = false;
             }
         }
+        // console.log(newNearestBeaches.length);
         setNearestBeaches(newNearestBeaches);
         setBeachesLoading(false);
     }, [coordinates])
@@ -289,13 +265,12 @@ function SurferMode() {
 
     useEffect(() => {
         if (coordinates.lat && coordinates.lon) {
-            fetchDailyForecast();
             fetchBeaches();
             setSelectedBeach(null);
             setNearestBeaches({});
             setMoreInfoSelected(false);
         }
-    }, [coordinates, fetchDailyForecast, fetchBeaches]);
+    }, [coordinates, fetchBeaches]);
 
     // Event handlers
     const handleInputChange = (e) => {
@@ -317,12 +292,12 @@ function SurferMode() {
     };
 
     // beach info stuff (updates the info card when user selects a beach), and toggles it...
-    const onArrowClick = (beachName) => {
-        if (selectedBeach && moreInfoSelected && beachName === selectedBeach.name) {
+    const onArrowClick = (beach) => {
+        if (selectedBeach && moreInfoSelected && beach.display_name === selectedBeach.name) {
             setMoreInfoSelected(false);
         }
         else {
-            setSelectedBeach(nearestBeaches[beachName]);
+            setSelectedBeach(nearestBeaches[beach.display_name]);
             setMoreInfoSelected(true);
         }
     };
@@ -407,8 +382,6 @@ function SurferMode() {
                 </>
             )}
 
-
-
             <div className='beaches'>
                 <div className='cards'>
                     <div className='cardsContainer'>
@@ -466,13 +439,11 @@ function SurferMode() {
 
                         </div>
                         {beachesLoading ?
-                            (<p className="loadingBeaches">Searching<span>.</span><span>.</span><span>.</span></p>)
-                            : Object.keys(nearestBeaches).length > 0 ? (
-                                Object.keys(nearestBeaches).map(beachName => (
+                            (<p style={{ textAlign: 'center' }}>Loading forecast...</p>)
+                            : nearestBeaches.length > 0 ? (
+                                nearestBeaches.map(beach => (
                                     <BeachCard
-                                        key={beachName}
-                                        beachName={beachName}
-                                        rating={nearestBeaches[beachName].rating}
+                                        beachInfo={beach}
                                         onArrowClick={onArrowClick}
                                     />
                                 ))

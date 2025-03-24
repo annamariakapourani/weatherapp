@@ -4,7 +4,7 @@ function BeachInfo({beachData}) {
     return (
         <div className='beachMoreInfo'>
         <div className='beachName'>
-            <p>{beachData.name}</p>
+            <p>{beachData.display_name ? beachData.display_name.split(', ')[0] : 'Unknown Beach'}</p>
         </div>
             {beachData.hasMarineData ? (<>
                 <div className = 'extraInfo'>
@@ -20,24 +20,24 @@ function BeachInfo({beachData}) {
                 <div className='beachDetailsDivMoreInfo'>
                     <div className='beachDetailsTitlesDivMoreInfo'>
                         <ul className='beachDetailsTitlesMoreInfo'>
-                            <li>Wave height</li>
-                            <li>Wave direction</li>
-                            <li>Wave period</li>
-                            <li>Wind wave height</li>
-                            <li>Wind wave direction</li>
-                            <li>Swell wave height</li>
-                            <li>Swell wave direction</li>
+                            {beachData.waveHeight == null ? (<li>Wave height</li>) : null}
+                            {beachData.waveDirection == null ? (<li>Wave direction</li>) : null}
+                            {beachData.wavePeriod == null ? (<li>Wave period</li>) : null}
+                            {beachData.windWaveHeight == null ? (<li>Wind wave height</li>) : null}
+                            {beachData.windWaveDirection == null ? (<li>Wind wave direction</li>) : null}
+                            {beachData.swellWaveHeight == null ? (<li>Swell wave height</li>) : null}
+                            {beachData.swellWaveDirection == null ? (<li>Swell wave direction</li>) : null}
                         </ul>
                     </div>
                     <div className='beachDetailsResultsDivMoreInfo'>
                         <ul className='beachDetailsResultsMoreInfo'>
-                            <li>{beachData.waveHeight}</li>
-                            <li>{beachData.waveDirection}</li>
-                            <li>{beachData.wavePeriod}</li>
-                            <li>{beachData.windWaveHeight}</li>
-                            <li>{beachData.windWaveDirection}</li>
-                            <li>{beachData.swellWaveHeight}</li>
-                            <li>{beachData.swellWaveDirection}</li>
+                            {beachData.waveHeight == null ? (<li>{beachData.waveHeight}</li>) : null}
+                            {beachData.waveDirection == null ? (<li>{beachData.waveDirection}</li>) : null}
+                            {beachData.wavePeriod == null ? (<li>{beachData.wavePeriod}</li>) : null}
+                            {beachData.windWaveHeight == null ? (<li>{beachData.windWaveHeight}</li>) : null}
+                            {beachData.windWaveDirection == null ? (<li>{beachData.windWaveDirection}</li>) : null}
+                            {beachData.swellWaveHeight == null ? (<li>{beachData.swellWaveHeight}</li>) : null}
+                            {beachData.swellWaveDirection == null ? (<li>{beachData.swellWaveDirection}</li>) : null}
                         </ul>
                     </div>
                 </div>

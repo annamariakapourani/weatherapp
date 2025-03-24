@@ -5,19 +5,23 @@ import CamberSands from "../../assets/CamberSands.png"
 import './BeachCard.css'
 
 
-function BeachCard({beachName, rating, onArrowClick}) {
+function BeachCard({beachInfo, onArrowClick}) {
+    console.log(beachInfo)
     return (
         <div className='beachCard'>
             <img className='beachImg' src={CamberSands} alt='Beach Image' />
             <div className='infoSection'>
-                <p className='beachName'>{beachName}</p>
+                <p className='beachName'>{beachInfo.display_name.split(', ')[0]}</p>
+                <div className='beachInfo'>
+                    {<p>Beach temperature: {beachInfo.temperature}</p>}
+                </div>
             </div>
             <div className='beachRating'> 
-                <p className='rating'>{rating}</p>
+                <p className='rating'>{beachInfo.rating}</p>
                 <img className='star' src={star} alt='Star'/>
             </div> 
             <div className='arrow'>
-                <button onClick={() => onArrowClick(beachName)}>
+                <button onClick={() => onArrowClick(beachInfo)}>
                     <img src={arrow} alt='Arrow'/>
                 </button>
             </div>                     
