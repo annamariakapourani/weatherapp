@@ -6,10 +6,9 @@ import './BeachCard.css'
 
 
 function BeachCard({beachInfo, onArrowClick}) {
-    console.log(beachInfo)
     return (
         <div className='beachCard'>
-            <img className='beachImg' src={CamberSands} alt='Beach Image' />
+            <img className='beachImg' src={CamberSands} alt='Camber Sands beach' />
             <div className='infoSection'>
                 <p className='beachName'>{beachInfo.display_name.split(', ')[0]}</p>
                 <div className='beachInfo'>

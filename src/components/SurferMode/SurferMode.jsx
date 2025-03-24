@@ -195,16 +195,16 @@ function SurferMode() {
 
         let response;
         try {
-            // response = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(`[out:json];(node(around:${radius},${lat},${lon})["natural"="beach"];way(around:50000,lat,lon)["natural"="beach"];relation(around:50000,lat,lon)["natural"="beach"];);out;`)}`);
             const location = city.trim().replace(/\s+/g, '+');
-            response = await axios.get(`https://nominatim.openstreetmap.org/search?q=beach+near+${encodeURIComponent(location)}&format=json&limit=10`)
-            // console.log(response.data)
+            const limit = 15; // Increased to get more beaches since some might be filtered out
+            response = await axios.get(`https://nominatim.openstreetmap.org/search?q=beach+near+${encodeURIComponent(location)}&format=json&limit=${limit}`)
         } catch (error) {
             console.error("Error fetching the beaches:", error)
             setNearestBeaches({});
             setBeachesLoading(false)
             return;
         }
+        
         const beachesData = response.data;
         if (beachesData.length === 0) {
             console.log('No beaches found...');
@@ -212,32 +212,37 @@ function SurferMode() {
             setBeachesLoading(false);
             return;
         }
-        // if there are beaches, store them each in the object and update the state
-        // Assumes that there are no beaches with the same name in the given radius
+        
         let newNearestBeaches = [];
-        /*
-        TODO: some of the beaches generated return null values. checking them on maps shows that they are not really proper beaches. Should check that a beach is an actual beach, or delete them if they return null values?
-        Also, some beaches are really close to eachother so end up producing the exact same data values. could leave it like that or change it.
-        */
+        let validBeachCount = 0;
+        
         for (const beach of beachesData) {
-            const weatherResponse = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${beach.lat}&lon=${beach.lon}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`);
-            const beachId = newNearestBeaches.length + 1
-            newNearestBeaches[beachId] = {
-                display_name: beach.display_name,
-                lat: beach.lat,
-                lon: beach.lon,
-                temperature: `${Math.round(weatherResponse.data.main.temp)}°C`,
-                description: weatherResponse.data.weather[0].description
-                //info: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-            };
-
-            // Now get the marine data for each beach
+            // First check if the location is near water before proceeding
             try {
-                const response = await axios.get(`https://marine-api.open-meteo.com/v1/marine?latitude=${beach.lat}&longitude=${beach.lon}&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,swell_wave_height,swell_wave_direction`);
+                const weatherResponse = await axios.get(
+                    `https://api.openweathermap.org/data/2.5/weather?lat=${beach.lat}&lon=${beach.lon}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
+                );
+                
+                const beachId = validBeachCount + 1;
+                validBeachCount++;
+                
+                newNearestBeaches[beachId] = {
+                    display_name: beach.display_name,
+                    lat: beach.lat,
+                    lon: beach.lon,
+                    temperature: `${Math.round(weatherResponse.data.main.temp)}°C`,
+                    description: weatherResponse.data.weather[0].description
+                };
+
+                // Now get the marine data
+                const marineResponse = await axios.get(
+                    `https://marine-api.open-meteo.com/v1/marine?latitude=${beach.lat}&longitude=${beach.lon}&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,swell_wave_height,swell_wave_direction`
+                );
+                
                 newNearestBeaches[beachId].hasMarineData = true;
 
-                let data = response.data.current;
-                let units = response.data.current_units;
+                let data = marineResponse.data.current;
+                let units = marineResponse.data.current_units;
 
                 newNearestBeaches[beachId].waveHeight = `${data.wave_height} ${units.wave_height}`;
                 newNearestBeaches[beachId].waveDirection = `${data.wave_direction} ${units.wave_direction}`;
@@ -247,16 +252,21 @@ function SurferMode() {
                 newNearestBeaches[beachId].swellWaveHeight = `${data.swell_wave_height} ${units.swell_wave_height}`;
                 newNearestBeaches[beachId].swellWaveDirection = `${data.swell_wave_direction} ${units.swell_wave_direction}`;
                 newNearestBeaches[beachId].rating = generateRating(data);
+                
             } catch (error) {
-                // try the next beach if cannot retrieve data
-                console.log("Error fetching marine data for " + beachId);
-                newNearestBeaches[beachId].hasMarineData = false;
+                // Skip this beach - not a valid marine location
+                console.log(`Skipping ${beach.display_name} - not a valid marine location or other error occurred`);
+                continue;
             }
         }
-        // console.log(newNearestBeaches.length);
+        
+        // Filter out empty entries and convert to array format your component expects
+        newNearestBeaches = newNearestBeaches.filter(beach => beach !== undefined);
+        
+        console.log(`Found ${newNearestBeaches.length} valid beaches with marine data`);
         setNearestBeaches(newNearestBeaches);
         setBeachesLoading(false);
-    }, [coordinates])
+    }, [coordinates, city])
 
     // Effects
     useEffect(() => {
@@ -293,11 +303,11 @@ function SurferMode() {
 
     // beach info stuff (updates the info card when user selects a beach), and toggles it...
     const onArrowClick = (beach) => {
-        if (selectedBeach && moreInfoSelected && beach.display_name === selectedBeach.name) {
+        if (selectedBeach && moreInfoSelected && beach.display_name === selectedBeach.display_name) {
             setMoreInfoSelected(false);
         }
         else {
-            setSelectedBeach(nearestBeaches[beach.display_name]);
+            setSelectedBeach(beach);
             setMoreInfoSelected(true);
         }
     };
