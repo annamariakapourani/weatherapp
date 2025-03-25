@@ -60,7 +60,7 @@ function DayForecast({ day, index, getWeatherIcon }) {
         <div className='day'>
             <img src={getWeatherIcon(day.weather[0].id)} alt={day.weather[0].description} />
             <p>{Math.round(day.main.temp)}°</p>
-            <p>{new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</p>
+            <p>{new Date(new Date().setDate(new Date().getDate() + index + 1)).toLocaleDateString('en-US', { weekday: 'short' })}</p>
         </div>
     );
 }
