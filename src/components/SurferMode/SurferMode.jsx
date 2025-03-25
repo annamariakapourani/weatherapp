@@ -203,6 +203,7 @@ function SurferMode() {
             const location = city.trim().replace(/\s+/g, '+');
             const limit = 15; // Increased to get more beaches since some might be filtered out
             response = await axios.get(`https://nominatim.openstreetmap.org/search?q=beach+near+${encodeURIComponent(location)}&format=json&limit=${limit}`)
+            console.log(response.data)
         } catch (error) {
             console.error("Error fetching the beaches:", error)
             setNearestBeaches({});
@@ -525,7 +526,7 @@ function SurferMode() {
                             <BeachInfo
                                 beachData={selectedBeach}
                             />) : (
-                            <div>
+                            <div className='clickOnBeach'>
                                 <img className='waveIcon' src={wave} alt='Wave' />
                                 <p className='infoText'>Click on beach<br />to see more info</p>
                             </div>)
