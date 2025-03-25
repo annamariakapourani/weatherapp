@@ -327,7 +327,6 @@ function SurferMode() {
 
     const handleApply = () => {
         applyFilters(); // Apply the selected filters
-        setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
     };
 
 
