@@ -9,6 +9,10 @@ body {
     background: linear-gradient(180deg, #72BBCE 0%, #8DC8D8 25.6%, #A7D5E1 46.6%, #C2E2EA 68.6%, #DCEEF3 100%);
 }
 
+.searchButton {
+    margin-bottom: 1.5em;
+}
+
 .beaches {
     display: flex;
     flex-direction: row;
@@ -97,6 +101,7 @@ body {
     min-height: 3.5em;
     position: relative;
     overflow: hidden;
+    margin-top: 4em;
 }
 
 .quote {

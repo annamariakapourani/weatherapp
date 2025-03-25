@@ -526,7 +526,7 @@ function SurferMode() {
                             <BeachInfo
                                 beachData={selectedBeach}
                             />) : (
-                            <div>
+                            <div className='clickOnBeach'>
                                 <img className='waveIcon' src={wave} alt='Wave' />
                                 <p className='infoText'>Click on beach<br />to see more info</p>
                             </div>)
