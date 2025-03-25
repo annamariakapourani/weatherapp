@@ -143,6 +143,10 @@ body {
     align-self: flex-start;
 }
 
+.clickOnBeach {
+    margin-top: 2em;
+}
+
 .infoText {
     font-size: 1.2em;
 }
