@@ -522,7 +522,6 @@ function SurferMode() {
                         <img className='quoteIcon' src={quoteIcon} alt='Quote' />
                         <p className='quote'>{quote}</p>
                     </div>
-                    <div className='info'>
                         {(moreInfoSelected) ? (
                             <BeachInfo
                                 beachData={selectedBeach}
@@ -532,11 +531,8 @@ function SurferMode() {
                                 <p className='infoText'>Click on beach<br />to see more info</p>
                             </div>)
                         }
-                    </div>
                 </div>
-
             </div>
-
         </div>
     );
 };

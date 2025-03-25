@@ -143,20 +143,6 @@ body {
     align-self: flex-start;
 }
 
-.info {
-    margin: 1em;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    background-color: var(--background-color);
-    border-radius: 0.6em;
-    padding: 1em;
-    width: 90%;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
 .infoText {
     font-size: 1.2em;
 }
