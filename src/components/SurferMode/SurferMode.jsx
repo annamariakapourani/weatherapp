@@ -69,6 +69,11 @@ function SurferMode() {
     const [selectedBeach, setSelectedBeach] = useState(null);
     const [moreInfoSelected, setMoreInfoSelected] = useState(false);
     const [quote, setQuote] = useState(quotes[0]);
+    const [filters, setFilters] = useState({
+        wind: null,
+        wave: null,
+        crowd: null
+    });
 
     useEffect(() => {
         const internal = setInterval(() => {
@@ -268,6 +273,64 @@ function SurferMode() {
         setBeachesLoading(false);
     }, [coordinates, city])
 
+
+
+    // Filter beaches based on the selected filters
+    const applyFilters = () => {
+        if (!nearestBeaches.length) return;
+
+        const filteredBeaches = nearestBeaches.filter(beach => {
+            const { windWaveHeight, waveHeight, rating } = beach;
+
+            let windCondition = true;
+            let waveCondition = true;
+            let crowdCondition = true;
+
+            if (filters.wind) {
+                const windValue = parseFloat(windWaveHeight);
+                if (filters.wind === "Light") windCondition = windValue < 0.5;
+                else if (filters.wind === "Medium") windCondition = windValue >= 0.5 && windValue <= 1.5;
+                else if (filters.wind === "Strong") windCondition = windValue > 1.5;
+            }
+
+            if (filters.wave) {
+                const waveValue = parseFloat(waveHeight);
+                if (filters.wave === "Small") waveCondition = waveValue < 1.5;
+                else if (filters.wave === "Medium") waveCondition = waveValue >= 1.5 && waveValue <= 3;
+                else if (filters.wave === "Large") waveCondition = waveValue > 3;
+            }
+
+            if (filters.crowd) {
+                if (filters.crowd === "Light") crowdCondition = rating >= 4;
+                else if (filters.crowd === "Medium") crowdCondition = rating >= 2 && rating < 4;
+                else if (filters.crowd === "Large") crowdCondition = rating < 2;
+            }
+
+            return windCondition && waveCondition && crowdCondition;
+        });
+
+        setNearestBeaches(filteredBeaches);
+    };
+
+    // Filter actions
+    const handleClearAll = () => {
+        setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
+        setNearestBeaches([]); // Clear the displayed beaches
+        fetchBeaches(); // Reload all beaches without filters
+    };
+
+    const handleCancel = () => {
+        console.log("Filter action cancelled."); // Log the cancel action
+        setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
+    };
+
+    const handleApply = () => {
+        applyFilters(); // Apply the selected filters
+        setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
+    };
+
+
+
     // Effects
     useEffect(() => {
         fetchData();
@@ -400,47 +463,37 @@ function SurferMode() {
                                 <img className='filterIcon' src={filterIcon} alt='Filter' />
                             </div>
 
-                            <PopUp trigger={popupButton} setTrigger={setPopupButton}>
+                            <PopUp trigger={popupButton} setTrigger={setPopupButton} onClearAll={handleClearAll} onCancel={handleCancel} onApply={handleApply}>
                                 <h3 className='name'>Filters</h3>
 
                                 <div className='filterOptions'>
                                     <div className='filterRow'>
                                         <label>Wind</label>
-                                        <select>
-                                            <option>Select filter</option>
-                                            <option>Light</option>
-                                            <option>Medium</option>
-                                            <option>Strong</option>
+                                        <select value={filters.wind || ""} onChange={(e) => setFilters({ ...filters, wind: e.target.value })}>
+                                            <option value="">Select filter</option>
+                                            <option value="Light">Light</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="Strong">Strong</option>
                                         </select>
                                     </div>
 
                                     <div className='filterRow'>
                                         <label>Wave</label>
-                                        <select>
-                                            <option>Select filter</option>
-                                            <option>Small</option>
-                                            <option>Medium</option>
-                                            <option>Large</option>
+                                        <select value={filters.wave || ""} onChange={(e) => setFilters({ ...filters, wave: e.target.value })}>
+                                            <option value="">Select filter</option>
+                                            <option value="Small">Small</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="Large">Large</option>
                                         </select>
                                     </div>
 
                                     <div className='filterRow'>
                                         <label>Crowd</label>
-                                        <select>
-                                            <option>Select filter</option>
-                                            <option>Light</option>
-                                            <option>Medium</option>
-                                            <option>Large</option>
-                                        </select>
-                                    </div>
-
-                                    <div className='filterRow'>
-                                        <label>Wind</label>
-                                        <select>
-                                            <option>Select filter</option>
-                                            <option>Low</option>
-                                            <option>Medium</option>
-                                            <option>High</option>
+                                        <select value={filters.crowd || ""} onChange={(e) => setFilters({ ...filters, crowd: e.target.value })}>
+                                            <option value="">Select filter</option>
+                                            <option value="Light">Light</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="Large">Large</option>
                                         </select>
                                     </div>
                                 </div>
