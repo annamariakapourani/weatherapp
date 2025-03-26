@@ -164,46 +164,18 @@ function SurferMode() {
 
     // get the nearest beaches
     const fetchBeaches = useCallback(async () => {
+
         if (!coordinates.lat || !coordinates.lon) {
             return;
         }
+
         setBeachesLoading(true);
 
-        // Helper method
-        const generateRating = (data) => {
-            const {
-                wave_height, // ideal wave height is between 1.5 and 3m
-                wave_period, //ideal period is 10-15 seconds
-                wave_direction, // wave and swell direction should align (be within 30 degrees)
-                wind_wave_height, // less that 0.5m is ideal
-                wind_wave_direction, // ideally should satisify Math.abs(wind_wave_direction - 180) <= 45
-                swell_wave_height, // 1 - 2.5 is ideal
-                swell_wave_direction // compared with wave_direction (look at its comment)
-            } = data;
-
-            let rating = 0;
-
-            if (wave_height >= 1.5 && wave_height <= 3) rating += 1;
-            if (wave_period >= 10 && wave_period <= 15) rating += 1;
-            if (Math.abs(wave_direction - swell_wave_direction) <= 30) rating += 1;
-            if (wind_wave_height< 0.5) rating += 1;
-            if (Math.abs(wind_wave_direction - 180) <= 45) rating += 1;
-            if (swell_wave_height >= 1 && swell_wave_height <= 2.5) rating += 1;
-
-            // normalise to make it make it between 0-5, and round to 1 dp
-
-            rating = rating * 5 / 6;
-            rating = Math.round(rating * 10) / 10
-
-            return rating;
-        };
-
         let response;
+        let radius = 50000;
+
         try {
-            const location = city.trim().replace(/\s+/g, '+');
-            const limit = 15; // Increased to get more beaches since some might be filtered out
-            response = await axios.get(`https://nominatim.openstreetmap.org/search?q=beach+near+${encodeURIComponent(location)}&format=json&limit=${limit}`)
-            console.log(response.data)
+            response = await axios.get(`/api/beaches?lat=${coordinates.lat}&lon=${coordinates.lon}&radius=${radius}`)
         } catch (error) {
             console.error("Error fetching the beaches:", error)
             setNearestBeaches({});
@@ -219,45 +191,47 @@ function SurferMode() {
             return;
         }
         
-        let newNearestBeaches = [];
-        let validBeachCount = 0;
+        let newNearestBeaches = {};
         
         for (const beach of beachesData) {
-            // First check if the location is near water before proceeding
+            // attempt to get the marine data for each location
             try {
-                const weatherResponse = await axios.get(
-                    `https://api.openweathermap.org/data/2.5/weather?lat=${beach.lat}&lon=${beach.lon}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
-                );
-                
-                const beachId = validBeachCount + 1;
-                validBeachCount++;
-                
-                newNearestBeaches[beachId] = {
-                    display_name: beach.display_name,
-                    lat: beach.lat,
-                    lon: beach.lon,
-                    temperature: `${Math.round(weatherResponse.data.main.temp)}°C`,
-                    description: weatherResponse.data.weather[0].description
-                };
 
-                // Now get the marine data
+                const lat = beach.geometry.location.lat;
+                const lon = beach.geometry.location.lng;
+
                 const marineResponse = await axios.get(
-                    `https://marine-api.open-meteo.com/v1/marine?latitude=${beach.lat}&longitude=${beach.lon}&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,swell_wave_height,swell_wave_direction`
+                    `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,swell_wave_height,swell_wave_direction`
                 );
-                
-                newNearestBeaches[beachId].hasMarineData = true;
 
                 let data = marineResponse.data.current;
                 let units = marineResponse.data.current_units;
 
-                newNearestBeaches[beachId].waveHeight = `${data.wave_height} ${units.wave_height}`;
-                newNearestBeaches[beachId].waveDirection = `${data.wave_direction} ${units.wave_direction}`;
-                newNearestBeaches[beachId].wavePeriod = `${data.wave_period} ${units.wave_period}`;
-                newNearestBeaches[beachId].windWaveHeight = `${data.wind_wave_height} ${units.wind_wave_height}`;
-                newNearestBeaches[beachId].windWaveDirection = `${data.wind_wave_direction} ${units.wind_wave_direction}`;
-                newNearestBeaches[beachId].swellWaveHeight = `${data.swell_wave_height} ${units.swell_wave_height}`;
-                newNearestBeaches[beachId].swellWaveDirection = `${data.swell_wave_direction} ${units.swell_wave_direction}`;
-                newNearestBeaches[beachId].rating = generateRating(data);
+                // If the location does not have marine data, then we can assume it is not a good location for surfing, so skip it all together
+                const hasMarineData = data.wave_height !== null && data.wave_direction !== null && data.wave_period !== null && data.wind_wave_height !== null && data.wind_wave_direction !== null && data.swell_wave_height !== null && data.swell_wave_direction !== null
+
+                if (hasMarineData) {
+                    const weatherResponse = await axios.get(
+                        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
+                    );
+                    newNearestBeaches[beach.place_id] = {
+                        display_name: beach.name,
+                        place_id: beach.place_id,
+                        lat: beach.geometry.location.lat,
+                        lon: beach.geometry.location.lng,
+                        rating: beach.rating,
+                        temperature: `${Math.round(weatherResponse.data.main.temp)}°C`,
+                        description: weatherResponse.data.weather[0].description,
+                        waveHeight: `${data.wave_height} ${units.wave_height}`,
+                        waveDirection: `${data.wave_direction} ${units.wave_direction}`,
+                        wavePeriod: `${data.wave_period} ${units.wave_period}`,
+                        windWaveHeight: `${data.wind_wave_height} ${units.wind_wave_height}`,
+                        windWaveDirection: `${data.wind_wave_direction} ${units.wind_wave_direction}`,
+                        swellWaveHeight: `${data.swell_wave_height} ${units.swell_wave_height}`,
+                        swellWaveDirection: `${data.swell_wave_direction} ${units.swell_wave_direction}`,
+                    };
+                    // TODO: could add an image... one of the field response is a photo-id that we can use the same API to get an image for.
+                }
                 
             } catch (error) {
                 // Skip this beach - not a valid marine location
@@ -265,14 +239,10 @@ function SurferMode() {
                 continue;
             }
         }
-        
-        // Filter out empty entries and convert to array format your component expects
-        newNearestBeaches = newNearestBeaches.filter(beach => beach !== undefined);
-        
-        console.log(`Found ${newNearestBeaches.length} valid beaches with marine data`);
+
         setNearestBeaches(newNearestBeaches);
         setBeachesLoading(false);
-    }, [coordinates, city])
+    }, [coordinates])
 
 
 
@@ -503,10 +473,11 @@ function SurferMode() {
                         </div>
                         {beachesLoading ?
                             (<p style={{ textAlign: 'center' }}>Loading forecast...</p>)
-                            : nearestBeaches.length > 0 ? (
-                                nearestBeaches.map(beach => (
+                            : Object.keys(nearestBeaches).length > 0 ? (
+                                Object.values(nearestBeaches).map((beach, i) => (
                                     <BeachCard
-                                        beachInfo={beach}
+                                        key={i}
+                                        beach={beach}
                                         onArrowClick={onArrowClick}
                                     />
                                 ))
