@@ -1,10 +1,24 @@
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import './BeachInfo.css'
-import GoogleMapComponent from './GoogleMapComponent';
 
 function BeachInfo({beachData}) {
+    const {isLoaded} = useLoadScript({
+        googleMapsApiKey : process.env.REACT_APP_GOOGLE_API_KEY
+    });
+
     if (!beachData) {
         return <div className='beachMoreInfo'>No beach data available</div>;
     }
+
+    const mapContainerStyle = {
+        width: '100%',
+        height: '300px',
+    };
+    
+    const center = {
+        lat: parseFloat(beachData.lat),
+        lng: parseFloat(beachData.lon),
+    };
 
     return (
         <div className='beachMoreInfo'>
@@ -12,7 +26,19 @@ function BeachInfo({beachData}) {
                 <p>{beachData.display_name ? beachData.display_name.split(', ')[0] : 'Unknown Beach'}</p>
             </div>
             <div className='extraInfo'>
-                <GoogleMapComponent lat = {beachData.lat} lon = {beachData.lon}/>
+                {isLoaded ? (
+                    <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        center={center}
+                        zoom={20}
+                        onLoad = {(map) => { // make it focus on the actually focus on the beach...
+                            map.panTo(center)
+                            map.setZoom(20)
+                        }}
+                    />
+                ) : (
+                    <p>Loading map...</p>
+                )}
                 <a
                     href={`https://www.google.com/maps?q=${beachData.lat},${beachData.lon}`}
                     target="_blank"
