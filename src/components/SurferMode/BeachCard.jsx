@@ -32,8 +32,12 @@ function BeachCard({beach, onArrowClick}) {
                 </div>
             </div>
             <div className='beachRating'> 
-                <p className='rating'>{beach.rating}</p>
-                <img className='star' src={star} alt='Star'/>
+                <div className="google-rating">
+                    <p className='rating'>{beach.rating}</p> <img className='star' src={star} alt='Star'/>
+                </div>
+                <div className='score'>
+                    <p className={`score-${beach.score}`}>{beach.score}</p>
+                </div>
             </div> 
             <div className='arrow'>
                 <button onClick={() => onArrowClick(beach)}>

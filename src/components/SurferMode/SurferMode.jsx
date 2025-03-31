@@ -162,12 +162,82 @@ function SurferMode() {
         []
     );
 
+    // Helper method to generate ratings
+    // TODO: probbaly need to make this algorithm more realistic as right now, EVERYTHING is bad.
+    const generateBeachScore = (data) => {
+        const {
+            wave_height, // ideal wave height is between 1.5 and 3m
+            wave_period, //ideal period is 10-15 seconds
+            wave_direction, // wave and swell direction should align (be within 30 degrees)
+            wind_wave_height, // less that 0.5m is ideal
+            wind_wave_direction, // ideally should satisify Math.abs(wind_wave_direction - 180) <= 45
+            swell_wave_height, // 1 - 2.5 is ideal
+            swell_wave_direction // compared with wave_direction (look at its comment)
+        } = data;
+        let rating = 0;
+
+        // Wave height stuff
+        if (wave_height >= 1.5 && wave_height <= 3) { // perfect score
+            rating += 2;
+        } else if (wave_height >= 1 && wave_height < 1.5 || wave_height > 3 && wave_height <= 4) { // almost there
+            rating += 1;
+        }
+
+        // Wave period stuff
+        if (wave_period >= 10 && wave_period <= 15) {
+            rating += 2;
+        } else if (wave_period >= 8 && wave_period < 10 || wave_period > 15 && wave_period <= 18) {
+            rating += 1;
+        }
+
+        // Wave and swell direction stuff
+        if (Math.abs(wave_direction - swell_wave_direction) <= 30) {
+            rating += 2;
+        } else if (Math.abs(wave_direction - swell_wave_direction) <= 60) {
+            rating += 1;
+        }
+
+        // Wind wave height stuff
+        if (wind_wave_height < 0.5) {
+            rating += 2;
+        } else if (wind_wave_height >= 0.5 && wind_wave_height <= 1) {
+            rating += 1;
+        }
+
+        // Wind wave direction stuff
+        if (Math.abs(wind_wave_direction - 180) <= 45) {
+            rating += 2;
+        } else if (Math.abs(wind_wave_direction - 180) <= 90) {
+            rating += 1;
+        }
+
+        // Swell wave height scoring
+        if (swell_wave_height >= 1 && swell_wave_height <= 2.5) {
+            rating += 2;
+        } else if (swell_wave_height >= 0.5 && swell_wave_height < 1 || swell_wave_height > 2.5 && swell_wave_height <= 3) {
+            rating += 1;
+
+        }
+
+        // Final score classification
+        if (rating <= 4) return "POOR";
+        else if (rating <= 8) return "OK";
+        else return "GOOD";
+    };
+
+    // Helper method to reset all beach information
+    const resetBeachData = () => {
+        setNearestBeaches({});
+        setSelectedBeach(null);
+        setMoreInfoSelected(null);
+    };
+
     // get the nearest beaches
     const fetchBeaches = useCallback(async () => {
 
-        if (!coordinates.lat || !coordinates.lon) {
-            return;
-        }
+        resetBeachData(); //clear any previous data
+
+        if (!coordinates.lat || !coordinates.lon) return;
 
         setBeachesLoading(true);
 
@@ -178,7 +248,6 @@ function SurferMode() {
             response = await axios.get(`/api/beaches?lat=${coordinates.lat}&lon=${coordinates.lon}&radius=${radius}`)
         } catch (error) {
             console.error("Error fetching the beaches:", error)
-            setNearestBeaches({});
             setBeachesLoading(false)
             return;
         }
@@ -186,7 +255,6 @@ function SurferMode() {
         const beachesData = response.data;
         if (beachesData.length === 0) {
             console.log('No beaches found...');
-            setNearestBeaches({});
             setBeachesLoading(false);
             return;
         }
@@ -229,6 +297,7 @@ function SurferMode() {
                         windWaveDirection: `${data.wind_wave_direction} ${units.wind_wave_direction}`,
                         swellWaveHeight: `${data.swell_wave_height} ${units.swell_wave_height}`,
                         swellWaveDirection: `${data.swell_wave_direction} ${units.swell_wave_direction}`,
+                        score: generateBeachScore(data),
                     };
                     // If the beach has an associated image, then we can use that instead of the stock photo:
                     if (beach.photos && beach.photos.length > 0) {
@@ -246,8 +315,6 @@ function SurferMode() {
         setNearestBeaches(newNearestBeaches);
         setBeachesLoading(false);
     }, [coordinates])
-
-
 
     // Filter beaches based on the selected filters
     const applyFilters = () => {
@@ -289,7 +356,6 @@ function SurferMode() {
     // Filter actions
     const handleClearAll = () => {
         setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
-        setNearestBeaches([]); // Clear the displayed beaches
         fetchBeaches(); // Reload all beaches without filters
     };
 
@@ -302,19 +368,15 @@ function SurferMode() {
         applyFilters(); // Apply the selected filters
     };
 
-
-
     // Effects
     useEffect(() => {
         fetchData();
+        fetchBeaches();
     }, []);
 
     useEffect(() => {
         if (coordinates.lat && coordinates.lon) {
             fetchBeaches();
-            setSelectedBeach(null);
-            setNearestBeaches({});
-            setMoreInfoSelected(false);
         }
     }, [coordinates, fetchBeaches]);
 
@@ -330,11 +392,13 @@ function SurferMode() {
         setSuggestions([]);
         setShowSuggestions(false);
         fetchData();
+        fetchBeaches();
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         fetchData();
+        fetchBeaches();
     };
 
     // beach info stuff (updates the info card when user selects a beach), and toggles it...
@@ -474,19 +538,21 @@ function SurferMode() {
                             </PopUp>
 
                         </div>
-                        {beachesLoading ?
+                        {error === "City not found. Please try again." ?
+                            (<p>Enter a valid location...</p>)
+                        : beachesLoading ?
                             (<p style={{ textAlign: 'center' }}>Loading forecast...</p>)
-                            : Object.keys(nearestBeaches).length > 0 ? (
-                                Object.values(nearestBeaches).map((beach, i) => (
-                                    <BeachCard
-                                        key={i}
-                                        beach={beach}
-                                        onArrowClick={onArrowClick}
-                                    />
-                                ))
-                            ) : (
-                                <p>No beaches found...</p>
-                            )}
+                        : Object.keys(nearestBeaches).length > 0 ? (
+                            Object.values(nearestBeaches).map((beach, i) => (
+                                <BeachCard
+                                    key={i}
+                                    beach={beach}
+                                    onArrowClick={onArrowClick}
+                                />
+                            ))
+                        ) : (
+                            <p>No beaches found...</p>
+                        )}
                     </div>
                 </div>
 

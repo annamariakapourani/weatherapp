@@ -44,8 +44,15 @@
     right: 1em;
     margin: 1em 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 0.5em;
+}
+
+.google-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
 }
 
 .rating {
@@ -80,4 +87,22 @@ button {
 .star {
     width: 1em;
     height: 1em;
+}
+
+.score {
+    font-size: 0.9em;
+    font-weight: bold;
+    text-align: center;
+}
+
+.score-POOR {
+    color: #f44336;
+}
+
+.score-OK {
+    color: #ff9800;
+}
+
+.score-GOOD {
+    color: #4caf50;
 }
