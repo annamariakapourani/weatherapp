@@ -4,13 +4,15 @@ function BeachInfo({beachData}) {
     if (!beachData) {
         return <div className='beachMoreInfo'>No beach data available</div>;
     }
+
+    console.log(beachData)
     
     return (
         <div className='beachMoreInfo'>
             <div className='beachName'>
                 <p>{beachData.display_name ? beachData.display_name.split(', ')[0] : 'Unknown Beach'}</p>
             </div>
-            {beachData.hasMarineData ? (
+            {beachData ? (
                 <>
                     <div className='extraInfo'>
                         <a
@@ -22,27 +24,32 @@ function BeachInfo({beachData}) {
                             Open in Google Maps
                         </a>
                     </div>
+                    <img src={beachData.weather.icon} alt="Weather icon" width={'50px'} />
                     <div className='beachDetailsDivMoreInfo'>
                         <div className='beachDetailsTitlesDivMoreInfo'>
                             <ul className='beachDetailsTitlesMoreInfo'>
-                                {beachData.waveHeight && <li>Wave height</li>}
-                                {beachData.waveDirection && <li>Wave direction</li>}
-                                {beachData.wavePeriod && <li>Wave period</li>}
-                                {beachData.windWaveHeight && <li>Wind wave height</li>}
-                                {beachData.windWaveDirection && <li>Wind wave direction</li>}
-                                {beachData.swellWaveHeight && <li>Swell wave height</li>}
-                                {beachData.swellWaveDirection && <li>Swell wave direction</li>}
+                                {beachData.temperature && <li>Temperature</li>}
+                                {beachData.main.feels_like && <li>Feels like</li>}
+                                {beachData.main.humidity && <li>Humidity</li>}
+                                {beachData.main.pressure && <li>Pressure</li>}
+                                {beachData.main.temp_min && <li>Min temperature</li>}
+                                {beachData.main.temp_max && <li>Max temperature</li>}
+
+                                {beachData.wind.deg && <li>Wind direction</li>}
+                                {beachData.wind.speed && <li>Wind speed</li>}
                             </ul>
                         </div>
                         <div className='beachDetailsResultsDivMoreInfo'>
                             <ul className='beachDetailsResultsMoreInfo'>
-                                {beachData.waveHeight && <li>{beachData.waveHeight}</li>}
-                                {beachData.waveDirection && <li>{beachData.waveDirection}</li>}
-                                {beachData.wavePeriod && <li>{beachData.wavePeriod}</li>}
-                                {beachData.windWaveHeight && <li>{beachData.windWaveHeight}</li>}
-                                {beachData.windWaveDirection && <li>{beachData.windWaveDirection}</li>}
-                                {beachData.swellWaveHeight && <li>{beachData.swellWaveHeight}</li>}
-                                {beachData.swellWaveDirection && <li>{beachData.swellWaveDirection}</li>}
+                                {beachData.temperature && <li>{beachData.temperature}°C</li>}
+                                {beachData.main.feels_like && <li>{beachData.main.feels_like}°C</li>}
+                                {beachData.main.humidity && <li>{beachData.main.humidity}%</li>}
+                                {beachData.main.pressure && <li>{beachData.main.pressure} hPa</li>}
+                                {beachData.main.temp_min && <li>{beachData.main.temp_min}°C</li>}
+                                {beachData.main.temp_max && <li>{beachData.main.temp_max}°C</li>}
+
+                                {beachData.wind.deg && <li>{beachData.wind.deg}°</li>}
+                                {beachData.wind.speed && <li>{beachData.wind.speed} m/s</li>}
                             </ul>
                         </div>
                     </div>

@@ -70,9 +70,9 @@ function SurferMode() {
     const [moreInfoSelected, setMoreInfoSelected] = useState(false);
     const [quote, setQuote] = useState(quotes[0]);
     const [filters, setFilters] = useState({
-        wind: null,
-        wave: null,
-        crowd: null
+        temperature: null,
+        wind_speed: null,
+        humidity: null
     });
 
     useEffect(() => {
@@ -148,9 +148,7 @@ function SurferMode() {
                     name: city.name,
                     country: city.country,
                     state: city.state,
-                    displayName: city.state
-                        ? `${city.name}, ${city.state}, ${city.country}`
-                        : `${city.name}, ${city.country}`
+                    displayName: city.state ? `${city.name}, ${city.state}, ${city.country}` : `${city.name}, ${city.country}`
                 }));
 
                 setSuggestions(cityData);
@@ -169,41 +167,12 @@ function SurferMode() {
         }
         setBeachesLoading(true);
 
-        // Helper method
-        const generateRating = (data) => {
-            const {
-                wave_height, // ideal wave height is between 1.5 and 3m
-                wave_period, //ideal period is 10-15 seconds
-                wave_direction, // wave and swell direction should align (be within 30 degrees)
-                wind_wave_height, // less that 0.5m is ideal
-                wind_wave_direction, // ideally should satisify Math.abs(wind_wave_direction - 180) <= 45
-                swell_wave_height, // 1 - 2.5 is ideal
-                swell_wave_direction // compared with wave_direction (look at its comment)
-            } = data;
-
-            let rating = 0;
-
-            if (wave_height >= 1.5 && wave_height <= 3) rating += 1;
-            if (wave_period >= 10 && wave_period <= 15) rating += 1;
-            if (Math.abs(wave_direction - swell_wave_direction) <= 30) rating += 1;
-            if (wind_wave_height< 0.5) rating += 1;
-            if (Math.abs(wind_wave_direction - 180) <= 45) rating += 1;
-            if (swell_wave_height >= 1 && swell_wave_height <= 2.5) rating += 1;
-
-            // normalise to make it make it between 0-5, and round to 1 dp
-
-            rating = rating * 5 / 6;
-            rating = Math.round(rating * 10) / 10
-
-            return rating;
-        };
-
         let response;
         try {
             const location = city.trim().replace(/\s+/g, '+');
             const limit = 15; // Increased to get more beaches since some might be filtered out
             response = await axios.get(`https://nominatim.openstreetmap.org/search?q=beach+near+${encodeURIComponent(location)}&format=json&limit=${limit}`)
-            console.log(response.data)
+            // console.log(response.data)
         } catch (error) {
             console.error("Error fetching the beaches:", error)
             setNearestBeaches({});
@@ -228,37 +197,32 @@ function SurferMode() {
                 const weatherResponse = await axios.get(
                     `https://api.openweathermap.org/data/2.5/weather?lat=${beach.lat}&lon=${beach.lon}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
                 );
+                // console.log(weatherResponse.data)
                 
-                const beachId = validBeachCount + 1;
-                validBeachCount++;
-                
-                newNearestBeaches[beachId] = {
+                newNearestBeaches[validBeachCount++] = {
                     display_name: beach.display_name,
                     lat: beach.lat,
                     lon: beach.lon,
-                    temperature: `${Math.round(weatherResponse.data.main.temp)}°C`,
-                    description: weatherResponse.data.weather[0].description
+                    temperature: Math.round(weatherResponse.data.main.temp),
+                    description: weatherResponse.data.weather[0].description,
+                    main: {
+                        feels_like: Math.round(weatherResponse.data.main.feels_like),
+                        humidity: weatherResponse.data.main.humidity,
+                        pressure: weatherResponse.data.main.pressure,
+                        temp_max: Math.round(weatherResponse.data.main.temp_max),
+                        temp_min: Math.round(weatherResponse.data.main.temp_min),
+                    },
+                    weather: {
+                        description: weatherResponse.data.weather[0].description,
+                        icon: getWeatherIcon(weatherResponse.data.weather[0].id),
+                        id: weatherResponse.data.weather[0].id,
+                        main: weatherResponse.data.weather[0].main
+                    },
+                    wind: {
+                        deg: weatherResponse.data.wind.deg,
+                        speed: Math.round(weatherResponse.data.wind.speed),
+                    }
                 };
-
-                // Now get the marine data
-                const marineResponse = await axios.get(
-                    `https://marine-api.open-meteo.com/v1/marine?latitude=${beach.lat}&longitude=${beach.lon}&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,swell_wave_height,swell_wave_direction`
-                );
-                
-                newNearestBeaches[beachId].hasMarineData = true;
-
-                let data = marineResponse.data.current;
-                let units = marineResponse.data.current_units;
-
-                newNearestBeaches[beachId].waveHeight = `${data.wave_height} ${units.wave_height}`;
-                newNearestBeaches[beachId].waveDirection = `${data.wave_direction} ${units.wave_direction}`;
-                newNearestBeaches[beachId].wavePeriod = `${data.wave_period} ${units.wave_period}`;
-                newNearestBeaches[beachId].windWaveHeight = `${data.wind_wave_height} ${units.wind_wave_height}`;
-                newNearestBeaches[beachId].windWaveDirection = `${data.wind_wave_direction} ${units.wind_wave_direction}`;
-                newNearestBeaches[beachId].swellWaveHeight = `${data.swell_wave_height} ${units.swell_wave_height}`;
-                newNearestBeaches[beachId].swellWaveDirection = `${data.swell_wave_direction} ${units.swell_wave_direction}`;
-                newNearestBeaches[beachId].rating = generateRating(data);
-                
             } catch (error) {
                 // Skip this beach - not a valid marine location
                 console.log(`Skipping ${beach.display_name} - not a valid marine location or other error occurred`);
@@ -315,14 +279,14 @@ function SurferMode() {
 
     // Filter actions
     const handleClearAll = () => {
-        setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
+        setFilters({ temperature: null, wind_speed: null, humidity: null }); // Reset all filters
         setNearestBeaches([]); // Clear the displayed beaches
         fetchBeaches(); // Reload all beaches without filters
     };
 
     const handleCancel = () => {
         console.log("Filter action cancelled."); // Log the cancel action
-        setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
+        setFilters({ temperature: null, wind_speed: null, humidity: null }); // Reset all filters
     };
 
     const handleApply = () => {
@@ -469,27 +433,27 @@ function SurferMode() {
                                 <div className='filterOptions'>
                                     <div className='filterRow'>
                                         <label>Wind</label>
-                                        <select value={filters.wind || ""} onChange={(e) => setFilters({ ...filters, wind: e.target.value })}>
+                                        <select value={filters.temperature || ""} onChange={(e) => setFilters({ ...filters, wind: e.target.value })}>
                                             <option value="">Select filter</option>
-                                            <option value="Light">Light</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="Strong">Strong</option>
+                                            <option value="Hot">Hot</option>
+                                            <option value="Warm">Warm</option>
+                                            <option value="Cold">Cold</option>
                                         </select>
                                     </div>
 
                                     <div className='filterRow'>
                                         <label>Wave</label>
-                                        <select value={filters.wave || ""} onChange={(e) => setFilters({ ...filters, wave: e.target.value })}>
+                                        <select value={filters.wind_speed || ""} onChange={(e) => setFilters({ ...filters, wave: e.target.value })}>
                                             <option value="">Select filter</option>
-                                            <option value="Small">Small</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="Large">Large</option>
+                                            <option value="Strong">Strong</option>
+                                            <option value="Mild">Mild</option>
+                                            <option value="None">None</option>
                                         </select>
                                     </div>
 
                                     <div className='filterRow'>
                                         <label>Crowd</label>
-                                        <select value={filters.crowd || ""} onChange={(e) => setFilters({ ...filters, crowd: e.target.value })}>
+                                        <select value={filters.humidity || ""} onChange={(e) => setFilters({ ...filters, crowd: e.target.value })}>
                                             <option value="">Select filter</option>
                                             <option value="Light">Light</option>
                                             <option value="Medium">Medium</option>
