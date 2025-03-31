@@ -1,0 +1,39 @@
+.radius-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1em 0;
+    font-family: Arial, sans-serif;
+}
+
+.radius-selector label {
+    margin-bottom: 1em;
+    color: black;
+}
+
+#radius-slider {
+    width: 80%;
+    height: 1em;
+    background: white;
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+
+#radius-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1em;
+    height: 1em;
+    background: black;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#radius-slider::-moz-range-thumb {
+    width: 1em;
+    height: 1em;
+    background: black;
+    border-radius: 50%;
+    cursor: pointer;
+}

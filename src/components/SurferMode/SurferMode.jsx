@@ -5,6 +5,7 @@ import PopUp from "../../utils/PopUp";
 import { CurrentTime } from '../../utils/CurrentTime';
 import BeachCard from './BeachCard';
 import BeachInfo from './BeachInfo';
+import RadiusScroller from './RadiusScroller';
 import './SurferMode.css';
 
 // Icons
@@ -74,6 +75,8 @@ function SurferMode() {
         wave: null,
         crowd: null
     });
+    const [radius, setRadius] = useState(50000);
+    const [radiusScrollerLocked, setRadiusScrollerLocked] = useState(false); // need to lock the scroller sometimes (specifically when stuff is already loading) to prevent it from incorrectly overwriting data
 
     useEffect(() => {
         const internal = setInterval(() => {
@@ -169,10 +172,11 @@ function SurferMode() {
             return;
         }
 
+        setRadiusScrollerLocked(true);
+        setNearestBeaches({});
         setBeachesLoading(true);
 
         let response;
-        let radius = 50000;
 
         try {
             response = await axios.get(`/api/beaches?lat=${coordinates.lat}&lon=${coordinates.lon}&radius=${radius}`)
@@ -180,6 +184,7 @@ function SurferMode() {
             console.error("Error fetching the beaches:", error)
             setNearestBeaches({});
             setBeachesLoading(false)
+            setRadiusScrollerLocked(false);
             return;
         }
         
@@ -188,6 +193,7 @@ function SurferMode() {
             console.log('No beaches found...');
             setNearestBeaches({});
             setBeachesLoading(false);
+            setRadiusScrollerLocked(false);
             return;
         }
         
@@ -245,9 +251,8 @@ function SurferMode() {
 
         setNearestBeaches(newNearestBeaches);
         setBeachesLoading(false);
-    }, [coordinates])
-
-
+        setRadiusScrollerLocked(false);
+    }, [coordinates, radius])
 
     // Filter beaches based on the selected filters
     const applyFilters = () => {
@@ -289,7 +294,7 @@ function SurferMode() {
     // Filter actions
     const handleClearAll = () => {
         setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
-        setNearestBeaches([]); // Clear the displayed beaches
+        setNearestBeaches({}); // Clear the displayed beaches
         fetchBeaches(); // Reload all beaches without filters
     };
 
@@ -307,14 +312,15 @@ function SurferMode() {
     // Effects
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [fetchData]);
 
     useEffect(() => {
         if (coordinates.lat && coordinates.lon) {
-            fetchBeaches();
             setSelectedBeach(null);
             setNearestBeaches({});
             setMoreInfoSelected(false);
+            setRadiusScrollerLocked(false);
+            fetchBeaches();
         }
     }, [coordinates, fetchBeaches]);
 
@@ -472,6 +478,17 @@ function SurferMode() {
                                 </div>
 
                             </PopUp>
+
+                            <div className = "radius-scroller">
+                                {radiusScrollerLocked ? (
+                                    <></>
+                                ) : (
+                                    <RadiusScroller
+                                        initialRadius = {radius}
+                                        setRadius = {setRadius}
+                                    />
+                                )}
+                            </div>
 
                         </div>
                         {beachesLoading ?
