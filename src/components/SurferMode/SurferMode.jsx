@@ -230,7 +230,10 @@ function SurferMode() {
                         swellWaveHeight: `${data.swell_wave_height} ${units.swell_wave_height}`,
                         swellWaveDirection: `${data.swell_wave_direction} ${units.swell_wave_direction}`,
                     };
-                    // TODO: could add an image... one of the field response is a photo-id that we can use the same API to get an image for.
+                    // If the beach has an associated image, then we can use that instead of the stock photo:
+                    if (beach.photos && beach.photos.length > 0) {
+                        newNearestBeaches[beach.place_id].photo = beach.photos[0].photo_reference // there can be multiple images. For now, just take the first one.
+                    }
                 }
                 
             } catch (error) {

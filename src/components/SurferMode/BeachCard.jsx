@@ -2,13 +2,28 @@
 import star from "../../assets/star.png"
 import arrow from "../../assets/arrow.png"
 import CamberSands from "../../assets/CamberSands.png"
+import axios from "axios"
 import './BeachCard.css'
+import { useEffect, useState } from "react"
 
+const googleMapsApiKey =  process.env.REACT_APP_GOOGLE_API_KEY;
 
 function BeachCard({beach, onArrowClick}) {
+
+    const [image, setImage] = useState(CamberSands);
+
+    useEffect(() => {
+        if (beach.photo) {
+            setImage(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${beach.photo}&key=${googleMapsApiKey}`);
+        }
+        else {
+            console.log(`Cannot set image for ${beach.display_name}`)
+        }
+    }, [beach]);
+
     return (
         <div className='beachCard'>
-            <img className='beachImg' src={CamberSands} alt='Camber Sands beach' />
+            <img className='beachImg' src={image} alt={beach.display_name || "Stock image of Camber Sands beach in England"} />
             <div className='infoSection'>
                 <p className='beachName'>{beach.display_name.split(', ')[0]}</p>
                 <div className='beachInfo'>
