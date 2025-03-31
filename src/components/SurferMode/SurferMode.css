@@ -18,7 +18,8 @@ body {
     flex-direction: row;
     align-items: flex-start;
     justify-content: center;
-    width: 90%;
+    max-width: 100em;
+    min-width: 80em;
     height: 100%;
     min-height: 80vh;
     position: relative;

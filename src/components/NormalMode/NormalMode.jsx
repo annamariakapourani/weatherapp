@@ -1,10 +1,11 @@
+//#region Imports
 // Imports
-import './NormalMode.css'
-import React from 'react';
-import axios from 'axios';
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CurrentTime } from '../../utils/CurrentTime';
+import axios from 'axios';
+import './NormalMode.css'
+import { CurrentTime } from '../Shared/CurrentTime';
+import SearchBar from '../Shared/SearchBar';
 
 // Icons
 import surferIcon from "./../../assets/surferIcon.png"
@@ -15,7 +16,6 @@ import humidity from "../../assets/humidity.png"
 import sunrise from "../../assets/sunrise.png"
 import sunset from "../../assets/sunset.png"
 import sunCloudy from "../../assets/sunCloudy.png"
-import IconSearch from "../../assets/IconSearch.png"
 
 // Images
 import thunderstorm from "../../assets/thunderstorm.png"
@@ -45,7 +45,9 @@ const WEATHER_MESSAGES = {
     clouds: "Cloudy skies ahead!",
     default: "Check the weather!"
 };
+//#endregion
 
+//#region Components
 function WeatherInfoCard({ icon, label, value }) {
     return (
         <div className={label.toLowerCase().replace(' ', '')}>
@@ -64,6 +66,7 @@ function DayForecast({ day, index, getWeatherIcon }) {
         </div>
     );
 }
+//#endregion
 
 const NormalMode = () => {
     const [city, setCity] = useState('London');
@@ -73,12 +76,11 @@ const NormalMode = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
     const [error, setError] = useState(null);
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
     const FORECAST_DAYS = 5;
 
     const navigate = useNavigate();
 
+    //#region Functions
     // Helper functions
     const getWeatherIcon = useCallback((weatherId) => {
         for (const [, range] of Object.entries(WEATHER_ICONS)) {
@@ -108,14 +110,14 @@ const NormalMode = () => {
     };
 
     // Fetch data for the selected city
-    const fetchData = useCallback(async () => {
-        if (!city) return;
+    const fetchData = useCallback(async (cityName) => {
+        if (!cityName) return;
         
         setIsLoading(true);
         try {
             setError(null);
             const response = await axios.get(
-                `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
+                `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
             );
             setWeatherData(response.data);
             setCoordinates({
@@ -129,7 +131,7 @@ const NormalMode = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [city, getWeatherIcon]);
+    }, [getWeatherIcon]);
 
     // Give n day forecast at given location
     const fetchDailyForecast = useCallback(async () => {
@@ -152,67 +154,26 @@ const NormalMode = () => {
             setIsLoading(false);
         }
     }, [coordinates, FORECAST_DAYS]);
+    //#endregion
 
-    // Give 5 city suggestion on given input
-    const fetchSuggestions = useCallback(
-        async (query) => {
-            if (!query || query.length < 2) {
-                setSuggestions([]);
-                setShowSuggestions(false);
-                return;
-            }
-
-            try {
-                const response = await axios.get(
-                    `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${process.env.REACT_APP_OWM_API_KEY}`
-                );
-
-                const cityData = response.data.map(city => ({
-                    name: city.name,
-                    country: city.country,
-                    state: city.state,
-                    displayName: city.state
-                        ? `${city.name}, ${city.state}, ${city.country}`
-                        : `${city.name}, ${city.country}`
-                }));
-
-                setSuggestions(cityData);
-                setShowSuggestions(true);
-            } catch (error) {
-                console.error("Error fetching city suggestions:", error);
-            }
-        },
-        []
-    );
-
+    //#region Effects
     // Effects
     useEffect(() => {
-        fetchData();
+        fetchData(city);
     }, []);
 
     useEffect(() => {
         if (coordinates.lat && coordinates.lon) fetchDailyForecast();
     }, [coordinates, fetchDailyForecast]);
 
-    // Event handlers
-    const handleInputChange = (e) => {
-        const value = e.target.value;
-        setCity(value);
-        fetchSuggestions(value);
+    // Handle city selection from SearchBar
+    const handleCitySelect = (selectedCity) => {
+        setCity(selectedCity);
+        fetchData(selectedCity);
     };
+    //#endregion
 
-    const handleSuggestionClick = (suggestion) => {
-        setCity(suggestion.name);
-        setSuggestions([]);
-        setShowSuggestions(false);
-        fetchData();
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        fetchData();
-    };
-
+    //#region Render
     return (
         <div className="container">
             <div className='header'>
@@ -227,37 +188,10 @@ const NormalMode = () => {
                     <img className='bellIcon' src={bellIcon} alt='Notification' />
                 </div>
 
-                <form onSubmit={handleSubmit} className='searchBar'>
-                    <div className="search-container">
-                        <input
-                            type='text'
-                            placeholder='Search a city'
-                            value={city}
-                            onChange={handleInputChange}
-                            onFocus={() => city.length >= 2 && setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                            aria-label="Search for a city"
-                        />
-                        {showSuggestions && suggestions.length > 0 && (
-                            <div className="suggestions-dropdown">
-                                {suggestions.map((suggestion, index) => (
-                                    <div
-                                        key={index}
-                                        className="suggestion-item"
-                                        onClick={() => handleSuggestionClick(suggestion)}
-                                        role="option"
-                                        aria-selected={false}
-                                    >
-                                        {suggestion.displayName}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                    <button type="submit" className='searchButton' aria-label="Search">
-                        <img className='searchIcon' src={IconSearch} alt='Search' />
-                    </button>
-                </form>
+                <SearchBar 
+                    onCitySelect={handleCitySelect} 
+                    initialCity={city} 
+                />
 
                 <div 
                     className='switchMode' 
@@ -344,5 +278,6 @@ const NormalMode = () => {
         </div>
     );
 };
+//#endregion
 
 export default NormalMode;

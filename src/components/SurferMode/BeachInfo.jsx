@@ -4,8 +4,6 @@ function BeachInfo({beachData}) {
     if (!beachData) {
         return <div className='beachMoreInfo'>No beach data available</div>;
     }
-
-    console.log(beachData)
     
     return (
         <div className='beachMoreInfo'>
@@ -24,7 +22,6 @@ function BeachInfo({beachData}) {
                             Open in Google Maps
                         </a>
                     </div>
-                    <img src={beachData.weather.icon} alt="Weather icon" width={'50px'} />
                     <div className='beachDetailsDivMoreInfo'>
                         <div className='beachDetailsTitlesDivMoreInfo'>
                             <ul className='beachDetailsTitlesMoreInfo'>

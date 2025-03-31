@@ -1,15 +1,21 @@
 /* Beach Cards */
 
 .beachCard {
-    width: 100%;
+    display: flex;
+    flex-direction: row;
+    max-width: 40em;
+    min-width: 20em;
     min-height: 10em;
     height: 10em;
     border-radius: 1em;
     background: var(--background-color);
+    align-items: center;
     position: relative;
-    display: flex;
-    flex-direction: row;
     overflow: hidden;
+}
+
+.beachCard > img {
+    padding: 0.5em;
 }
 
 .beachImg {
@@ -20,7 +26,8 @@
 }
 
 .infoSection {
-    width: 80%;
+    width: 70%;
+    height: 100%;
     padding: 1em;
     position: relative;
     display: flex;
@@ -42,10 +49,9 @@
     position: absolute;
     top: 1em;
     right: 1em;
-    margin: 1em 1;
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    gap: 0.2em;
 }
 
 .rating {

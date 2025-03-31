@@ -8,7 +8,8 @@ import './BeachCard.css'
 function BeachCard({beachInfo, onArrowClick}) {
     return (
         <div className='beachCard'>
-            <img className='beachImg' src={CamberSands} alt='Camber Sands beach' />
+            {/* <img className='beachImg' src={CamberSands} alt='Camber Sands beach' /> */}
+            <img src={beachInfo.weather.icon} alt="Weather icon" width={'100em'} height={'100em'} />
             <div className='infoSection'>
                 <p className='beachName'>{beachInfo.display_name.split(', ')[0]}</p>
                 <div className='beachInfo'>

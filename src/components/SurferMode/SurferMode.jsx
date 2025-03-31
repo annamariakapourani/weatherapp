@@ -1,10 +1,12 @@
+//#region Imports
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import PopUp from "../../utils/PopUp";
-import { CurrentTime } from '../../utils/CurrentTime';
 import BeachCard from './BeachCard';
 import BeachInfo from './BeachInfo';
+import { CurrentTime } from '../Shared/CurrentTime';
+import SearchBar from '../Shared/SearchBar';
 import './SurferMode.css';
 
 // Icons
@@ -12,7 +14,6 @@ import homeIcon from "../../assets/homeIcon.png"
 import warning from "../../assets/warning.png"
 import sunIcon from "../../assets/sunIcon.png"
 import sunCloudy from "../../assets/sunCloudy.png"
-import IconSearch from "../../assets/IconSearch.png"
 import filterIcon from "../../assets/filterIcon.png"
 
 // Images
@@ -38,21 +39,22 @@ const WEATHER_ICONS = {
 const WEATHER_MESSAGES = {
     thunderstorm: "Storm incoming! Stay out of the water.",
     drizzle: "Light rain? Could be glassy waves!",
-    rain: "Rain’s fine, just watch for currents!",
+    rain: "Rain's fine, just watch for currents!",
     snow: "Snowy surf? Only for the bold!",
     fog: "Foggy lineup—stay aware!",
     clear: "Sunny and clean! Sunscreen up!",
-    clouds: "Cloudy but surf’s still up!",
+    clouds: "Cloudy but surf's still up!",
     default: "Check the surf report!"
 };
 
 const quotes = [
     "Ride the wave, chase the sun, and love the ocean.",
     "Let the sea set you free and ride the waves.",
-    "Life’s a wave—catch it, ride it, and enjoy it.",
+    "Life's a wave—catch it, ride it, and enjoy it.",
     "Sun, surf, salt, and sand—happiness is where waves land.",
     "Keep calm, paddle on, and ride the waves of life."
 ];
+//#endregion
 
 function SurferMode() {
     const [city, setCity] = useState('London');
@@ -61,10 +63,9 @@ function SurferMode() {
     const [isLoading, setIsLoading] = useState(false);
     const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
     const [error, setError] = useState(null);
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
     const [popupButton, setPopupButton] = useState(false);
-    const [nearestBeaches, setNearestBeaches] = useState({});
+    const [nearestBeaches, setNearestBeaches] = useState([]);
+    const [allBeaches, setAllBeaches] = useState([]); // Store the original unfiltered beaches
     const [beachesLoading, setBeachesLoading] = useState(false);
     const [selectedBeach, setSelectedBeach] = useState(null);
     const [moreInfoSelected, setMoreInfoSelected] = useState(false);
@@ -74,6 +75,7 @@ function SurferMode() {
         wind_speed: null,
         humidity: null
     });
+    const limit = 15; // Increased to get more beaches since some might be filtered out
 
     useEffect(() => {
         const internal = setInterval(() => {
@@ -106,15 +108,16 @@ function SurferMode() {
         return WEATHER_MESSAGES.default;
     }, []);
 
+    //#region Functions
     // Fetch data for the selected city
-    const fetchData = useCallback(async () => {
-        if (!city) return;
+    const fetchData = useCallback(async (cityName) => {
+        if (!cityName) return;
 
         setIsLoading(true);
         try {
             setError(null);
             const response = await axios.get(
-                `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
+                `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
             );
             setWeatherData(response.data);
             setCoordinates({
@@ -128,37 +131,7 @@ function SurferMode() {
         } finally {
             setIsLoading(false);
         }
-    }, [city, getWeatherIcon]);
-
-    // Give 5 city suggestion on given input
-    const fetchSuggestions = useCallback(
-        async (query) => {
-            if (!query || query.length < 2) {
-                setSuggestions([]);
-                setShowSuggestions(false);
-                return;
-            }
-
-            try {
-                const response = await axios.get(
-                    `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${process.env.REACT_APP_OWM_API_KEY}`
-                );
-
-                const cityData = response.data.map(city => ({
-                    name: city.name,
-                    country: city.country,
-                    state: city.state,
-                    displayName: city.state ? `${city.name}, ${city.state}, ${city.country}` : `${city.name}, ${city.country}`
-                }));
-
-                setSuggestions(cityData);
-                setShowSuggestions(true);
-            } catch (error) {
-                console.error("Error fetching city suggestions:", error);
-            }
-        },
-        []
-    );
+    }, [getWeatherIcon]);
 
     // get the nearest beaches
     const fetchBeaches = useCallback(async () => {
@@ -170,12 +143,11 @@ function SurferMode() {
         let response;
         try {
             const location = city.trim().replace(/\s+/g, '+');
-            const limit = 15; // Increased to get more beaches since some might be filtered out
             response = await axios.get(`https://nominatim.openstreetmap.org/search?q=beach+near+${encodeURIComponent(location)}&format=json&limit=${limit}`)
-            // console.log(response.data)
         } catch (error) {
             console.error("Error fetching the beaches:", error)
-            setNearestBeaches({});
+            setNearestBeaches([]);
+            setAllBeaches([]);
             setBeachesLoading(false)
             return;
         }
@@ -183,7 +155,8 @@ function SurferMode() {
         const beachesData = response.data;
         if (beachesData.length === 0) {
             console.log('No beaches found...');
-            setNearestBeaches({});
+            setNearestBeaches([]);
+            setAllBeaches([]);
             setBeachesLoading(false);
             return;
         }
@@ -199,7 +172,7 @@ function SurferMode() {
                 );
                 // console.log(weatherResponse.data)
                 
-                newNearestBeaches[validBeachCount++] = {
+                const beachInfo = {
                     display_name: beach.display_name,
                     lat: beach.lat,
                     lon: beach.lon,
@@ -223,109 +196,130 @@ function SurferMode() {
                         speed: Math.round(weatherResponse.data.wind.speed),
                     }
                 };
+                
+                // Calculate beach rating based on weather conditions
+                beachInfo.rating = calculateBeachRating(beachInfo);
+                
+                newNearestBeaches[validBeachCount++] = beachInfo;
             } catch (error) {
                 // Skip this beach - not a valid marine location
                 console.log(`Skipping ${beach.display_name} - not a valid marine location or other error occurred`);
                 continue;
             }
         }
-        
-        // Filter out empty entries and convert to array format your component expects
-        newNearestBeaches = newNearestBeaches.filter(beach => beach !== undefined);
-        
-        console.log(`Found ${newNearestBeaches.length} valid beaches with marine data`);
+
         setNearestBeaches(newNearestBeaches);
+        setAllBeaches(newNearestBeaches); // Store the original beaches
         setBeachesLoading(false);
-    }, [coordinates, city])
-
-
+    }, [coordinates, city, getWeatherIcon])
 
     // Filter beaches based on the selected filters
-    const applyFilters = () => {
-        if (!nearestBeaches.length) return;
+    function applyFilters() {
+        if (!allBeaches.length) return;
 
-        const filteredBeaches = nearestBeaches.filter(beach => {
-            const { windWaveHeight, waveHeight, rating } = beach;
+        const filteredBeaches = allBeaches.filter(beach => {
+            // Temperature filter
+            let tempCondition = true;
+            if (filters.temperature) {
+                const temp = beach.temperature;
+                if (filters.temperature === "Hot") tempCondition = temp > 25;
+                else if (filters.temperature === "Warm") tempCondition = temp >= 18 && temp <= 25;
+                else if (filters.temperature === "Cold") tempCondition = temp < 18;
+            }
 
+            // Wind speed filter
             let windCondition = true;
-            let waveCondition = true;
-            let crowdCondition = true;
-
-            if (filters.wind) {
-                const windValue = parseFloat(windWaveHeight);
-                if (filters.wind === "Light") windCondition = windValue < 0.5;
-                else if (filters.wind === "Medium") windCondition = windValue >= 0.5 && windValue <= 1.5;
-                else if (filters.wind === "Strong") windCondition = windValue > 1.5;
+            if (filters.wind_speed) {
+                const windSpeed = beach.wind.speed;
+                if (filters.wind_speed === "Strong") windCondition = windSpeed > 6;
+                else if (filters.wind_speed === "Mild") windCondition = windSpeed >= 2 && windSpeed <= 6;
+                else if (filters.wind_speed === "None") windCondition = windSpeed < 2;
             }
 
-            if (filters.wave) {
-                const waveValue = parseFloat(waveHeight);
-                if (filters.wave === "Small") waveCondition = waveValue < 1.5;
-                else if (filters.wave === "Medium") waveCondition = waveValue >= 1.5 && waveValue <= 3;
-                else if (filters.wave === "Large") waveCondition = waveValue > 3;
+            // Humidity filter
+            let humidityCondition = true;
+            if (filters.humidity) {
+                const humidity = beach.main.humidity;
+                if (filters.humidity === "Light") humidityCondition = humidity < 50;
+                else if (filters.humidity === "Medium") humidityCondition = humidity >= 50 && humidity <= 75;
+                else if (filters.humidity === "Large") humidityCondition = humidity > 75;
             }
 
-            if (filters.crowd) {
-                if (filters.crowd === "Light") crowdCondition = rating >= 4;
-                else if (filters.crowd === "Medium") crowdCondition = rating >= 2 && rating < 4;
-                else if (filters.crowd === "Large") crowdCondition = rating < 2;
-            }
-
-            return windCondition && waveCondition && crowdCondition;
+            return tempCondition && windCondition && humidityCondition;
         });
 
         setNearestBeaches(filteredBeaches);
+        
+        // Give feedback if no beaches match the criteria
+        if (filteredBeaches.length === 0) {
+            console.log("No beaches matched your filter criteria");
+        }
     };
 
+    function calculateBeachRating(beach) {
+        let rating = 0;
+        const maxRating = 5;
+        
+        // Temperature rating (0-2 points)
+        const temp = beach.temperature; // already rounded
+        if (temp >= 22 && temp <= 30) {
+            rating += 2; // Perfect temperature for beach activities
+        } else if ((temp >= 18 && temp < 22) || (temp > 30 && temp <= 35)) {
+            rating += 1; // Good but not ideal
+        }
+        
+        // Wind speed rating (0-2 points)
+        const windSpeed = beach.wind.speed;
+        if (windSpeed <= 3) {
+            rating += 2; // Light breeze, perfect
+        } else if (windSpeed > 3 && windSpeed <= 6) {
+            rating += 1; // Moderate wind, acceptable
+        }
+        
+        // Humidity rating (0-1 point)
+        const humidity = beach.main.humidity;
+        if (humidity >= 40 && humidity <= 70) {
+            rating += 1; // Comfortable humidity
+        }
+        
+        return Math.min(Math.max(Math.round(rating), 1), maxRating); // Ensure rating is between 1-5
+    };
+    //#endregion
+
+    //#region Event Handlers
     // Filter actions
     const handleClearAll = () => {
         setFilters({ temperature: null, wind_speed: null, humidity: null }); // Reset all filters
-        setNearestBeaches([]); // Clear the displayed beaches
-        fetchBeaches(); // Reload all beaches without filters
+        setNearestBeaches(allBeaches); // Restore all beaches from backup
     };
 
     const handleCancel = () => {
-        console.log("Filter action cancelled."); // Log the cancel action
         setFilters({ temperature: null, wind_speed: null, humidity: null }); // Reset all filters
+        setPopupButton(false); // Close the popup
     };
 
     const handleApply = () => {
         applyFilters(); // Apply the selected filters
     };
 
-
-
     // Effects
     useEffect(() => {
-        fetchData();
+        fetchData(city);
     }, []);
 
     useEffect(() => {
         if (coordinates.lat && coordinates.lon) {
             fetchBeaches();
             setSelectedBeach(null);
-            setNearestBeaches({});
+            setNearestBeaches([]);
             setMoreInfoSelected(false);
         }
     }, [coordinates, fetchBeaches]);
 
-    // Event handlers
-    const handleInputChange = (e) => {
-        const value = e.target.value;
-        setCity(value);
-        fetchSuggestions(value);
-    };
-
-    const handleSuggestionClick = (suggestion) => {
-        setCity(suggestion.name);
-        setSuggestions([]);
-        setShowSuggestions(false);
-        fetchData();
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        fetchData();
+    // Handle city selection from SearchBar
+    const handleCitySelect = (selectedCity) => {
+        setCity(selectedCity);
+        fetchData(selectedCity);
     };
 
     // beach info stuff (updates the info card when user selects a beach), and toggles it...
@@ -338,53 +332,27 @@ function SurferMode() {
             setMoreInfoSelected(true);
         }
     };
+    //#endregion
 
-
+    //#region Render
     return (
         <div className="container containerSurfers">
             <div className='header'>
+                {/* Popup Message on top left */}
                 <div className='popUpMessage'>
                     <p className='message'>
-                        {isLoading
-                            ? "Loading..."
-                            : weatherData
-                                ? getPopUpMessage(weatherData.weather[0].id)
-                                : "Check the weather!"}
+                        {isLoading ? "Loading..." : weatherData ? getPopUpMessage(weatherData.weather[0].id) : "Check the weather!"}
                     </p>
                     <img className='warningIcon' src={warning} alt='Notification' />
                 </div>
+                {/* Popup Message on top left */}
 
-                <form onSubmit={handleSubmit} className='searchBar'>
-                    <div className="search-container">
-                        <input
-                            type='text'
-                            placeholder='Search a city'
-                            value={city}
-                            onChange={handleInputChange}
-                            onFocus={() => city.length >= 2 && setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                            aria-label="Search for a city"
-                        />
-                        {showSuggestions && suggestions.length > 0 && (
-                            <div className="suggestions-dropdown">
-                                {suggestions.map((suggestion, index) => (
-                                    <div
-                                        key={index}
-                                        className="suggestion-item"
-                                        onClick={() => handleSuggestionClick(suggestion)}
-                                        role="option"
-                                        aria-selected={false}
-                                    >
-                                        {suggestion.displayName}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                    <button type="submit" className='searchButton' aria-label="Search">
-                        <img className='searchIcon' src={IconSearch} alt='Search' />
-                    </button>
-                </form>
+                {/* Searchbar */}
+                <SearchBar 
+                    onCitySelect={handleCitySelect} 
+                    initialCity={city} 
+                />
+                {/* Searchbar */}
 
                 <div
                     className='switchMode'
@@ -400,6 +368,7 @@ function SurferMode() {
 
             <CurrentTime timezone={weatherData?.timezone} />
 
+            {/* Default Info */}
             {error ? (
                 <div className="error-container">
                     <p className="error">{error}</p>
@@ -418,53 +387,56 @@ function SurferMode() {
                     </div>
                 </>
             )}
+            {/* Default Info */}
 
             <div className='beaches'>
                 <div className='cards'>
                     <div className='cardsContainer'>
                         <div className='filterDetails'>
+                            {/* Filters */}
                             <div className='filter' onClick={() => setPopupButton(true)}>
                                 <img className='filterIcon' src={filterIcon} alt='Filter' />
                             </div>
 
                             <PopUp trigger={popupButton} setTrigger={setPopupButton} onClearAll={handleClearAll} onCancel={handleCancel} onApply={handleApply}>
-                                <h3 className='name'>Filters</h3>
+                            <h3 className='name'>Filters</h3>
 
-                                <div className='filterOptions'>
-                                    <div className='filterRow'>
-                                        <label>Wind</label>
-                                        <select value={filters.temperature || ""} onChange={(e) => setFilters({ ...filters, wind: e.target.value })}>
-                                            <option value="">Select filter</option>
-                                            <option value="Hot">Hot</option>
-                                            <option value="Warm">Warm</option>
-                                            <option value="Cold">Cold</option>
-                                        </select>
-                                    </div>
-
-                                    <div className='filterRow'>
-                                        <label>Wave</label>
-                                        <select value={filters.wind_speed || ""} onChange={(e) => setFilters({ ...filters, wave: e.target.value })}>
-                                            <option value="">Select filter</option>
-                                            <option value="Strong">Strong</option>
-                                            <option value="Mild">Mild</option>
-                                            <option value="None">None</option>
-                                        </select>
-                                    </div>
-
-                                    <div className='filterRow'>
-                                        <label>Crowd</label>
-                                        <select value={filters.humidity || ""} onChange={(e) => setFilters({ ...filters, crowd: e.target.value })}>
-                                            <option value="">Select filter</option>
-                                            <option value="Light">Light</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="Large">Large</option>
-                                        </select>
-                                    </div>
+                            <div className='filterOptions'>
+                                <div className='filterRow'>
+                                    <label>Temperature</label>
+                                    <select value={filters.temperature || ""} onChange={(e) => setFilters({ ...filters, temperature: e.target.value })}>
+                                        <option value="">Select filter</option>
+                                        <option value="Hot">Hot</option>
+                                        <option value="Warm">Warm</option>
+                                        <option value="Cold">Cold</option>
+                                    </select>
                                 </div>
 
-                            </PopUp>
+                                <div className='filterRow'>
+                                    <label>Wind speed</label>
+                                    <select value={filters.wind_speed || ""} onChange={(e) => setFilters({ ...filters, wind_speed: e.target.value })}>
+                                        <option value="">Select filter</option>
+                                        <option value="Strong">Strong</option>
+                                        <option value="Mild">Mild</option>
+                                        <option value="None">None</option>
+                                    </select>
+                                </div>
 
+                                <div className='filterRow'>
+                                    <label>Humidity</label>
+                                    <select value={filters.humidity || ""} onChange={(e) => setFilters({ ...filters, humidity: e.target.value })}>
+                                        <option value="">Select filter</option>
+                                        <option value="Light">Light</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Large">Large</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {/* Filters */}
+                            </PopUp>
                         </div>
+
+                        {/* Beach card */}
                         {beachesLoading ?
                             (<p style={{ textAlign: 'center' }}>Loading forecast...</p>)
                             : nearestBeaches.length > 0 ? (
@@ -477,9 +449,11 @@ function SurferMode() {
                             ) : (
                                 <p>No beaches found...</p>
                             )}
+                        {/* Beach card */}
                     </div>
                 </div>
-
+                
+                {/* Beach Info */}
                 <div className='additionalInfo'>
                     <div className='quoteSection'>
                         <img className='quoteIcon' src={quoteIcon} alt='Quote' />
@@ -495,9 +469,11 @@ function SurferMode() {
                             </div>)
                         }
                 </div>
+                {/* Beach Info */}
             </div>
         </div>
     );
 };
+//#endregion
 
 export default SurferMode;
