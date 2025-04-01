@@ -407,7 +407,7 @@ function SurferMode() {
             }
         }
         setNearestBeaches(newNearestBeaches);
-    }, [coordinates, error, city])
+    }, [coordinates, error])
 
     const invokeFetchBeaches = async () => {
         setBeachesLoading(true);
