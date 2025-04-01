@@ -26,6 +26,7 @@ app.get("/api/beaches", async (req, res) => {
         let nextPageToken = null;
         let pages = 0;
         while (more) {
+            pages++;
             // get the results for the current set of beaches we are on
             const response = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${radius}&keyword=beach&key=${GOOGLE_API_KEY}${nextPageToken ? `&pagetoken=${nextPageToken}` : ''}`);
             for (const beach of response.data.results) {
@@ -33,7 +34,7 @@ app.get("/api/beaches", async (req, res) => {
             }
             // Then check if there are more results by seeing if we have a next_page_token, and if there is we start again for the page
             if (response.data.next_page_token) {
-                if (pages > 3) { //too many items
+                if (pages > 2) { //too many items
                     more = false;
                 }
                 else {

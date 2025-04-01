@@ -1,8 +1,6 @@
-// Images
 import star from "../../assets/star.png"
 import arrow from "../../assets/arrow.png"
 import CamberSands from "../../assets/CamberSands.png"
-import axios from "axios"
 import './BeachCard.css'
 import { useEffect, useState } from "react"
 
@@ -25,7 +23,7 @@ function BeachCard({beach, onArrowClick}) {
 
     return (
         <div className='beachCard'>
-            <img className='beachImg' src={image} alt={beach.display_name || "Stock image of Camber Sands beach in England"} />
+            <img className='beachImg' src={image} alt={beach.photo ? beach.display_name : "Stock image of Camber Sands beach in England"} onError={() => setImage(CamberSands)} />
             <div className='infoSection'>
                 <p className='beachName'>{beach.display_name.split(', ')[0]}</p>
                 <div className='beachInfo'>
@@ -48,7 +46,7 @@ function BeachCard({beach, onArrowClick}) {
                 <button onClick={() => onArrowClick(beach)}>
                     <img src={arrow} alt='Arrow'/>
                 </button>
-            </div>                     
+            </div>              
         </div>
     );
 }
