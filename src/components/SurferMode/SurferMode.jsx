@@ -263,6 +263,15 @@ function SurferMode() {
         // there is some formatting here that is only here in order for other parts of the code working without needing to
         // change those parts as well
 
+        let maxTries = 5;
+        if (!window.google) {
+            maxTries--;
+            await new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second for the script to load
+            if (maxTries <= 0) {
+                return {error: "Script has not loaded yet, try again."}
+            }
+        }
+
         // the place service requies a dummy map to work
         const map = new window.google.maps.Map(document.createElement("div"));
         const service = new window.google.maps.places.PlacesService(map);
