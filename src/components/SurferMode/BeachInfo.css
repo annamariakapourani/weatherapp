@@ -49,3 +49,26 @@
 .beachDetailsResultsDivMoreInfo {
     border-left: 1px solid black;
 }
+
+.show-forecast {
+    display: flex;
+    justify-content: center;
+    margin-top: 2em;
+    width: 100%;
+}
+
+.show-forecast button {
+    background-color: #8DC8D8;
+    border: solid black 1px;
+    border-radius: 5px;
+    padding: 2em 4em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.show-forecast button:hover {
+    background-color: #C2E2EA;
+}

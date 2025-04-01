@@ -1,0 +1,91 @@
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #DCEEF3;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.details {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #72BBCE;
+    border-bottom: 1px solid black;
+    z-index: 1001;
+}
+
+.name {
+    font-size: 1.5rem;
+    font-weight: bold;;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hide-button {
+    justify-content: center;
+}
+
+.hide-button button {
+    background-color: #8DC8D8;
+    border: solid black 1px;
+    border-radius: 5px;
+    padding: 2em 4em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hide-button button:hover {
+    background-color: #C2E2EA;
+}
+
+.chart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 5%;
+}
+
+.recharts-responsive-container {
+    width: 100%;
+    height: 100%;
+}
+
+.recharts-tooltip-wrapper {
+    background-color: #A7D5E1;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 1em;
+}
+
+.recharts-legend-wrapper {
+    font-size: 0.7em;
+    color: black;
+}
+
+.recharts-cartesian-axis-tick {
+    font-size: 0.7em;
+    fill: black;
+}
+
+.recharts-cartesian-grid line {
+    stroke: lightgray;
+    stroke-dasharray: 4 4;
+}

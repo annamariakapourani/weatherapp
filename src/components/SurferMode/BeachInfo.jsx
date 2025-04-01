@@ -1,7 +1,7 @@
 import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import './BeachInfo.css'
 
-function BeachInfo({beach}) {
+function BeachInfo({beach, showForecast}) {
     const {isLoaded} = useLoadScript({
         googleMapsApiKey : process.env.REACT_APP_GOOGLE_API_KEY
     });
@@ -71,6 +71,9 @@ function BeachInfo({beach}) {
                         {beach.swell_wave_direction_data && <li>{beach.swell_wave_direction_data[0]} {beach.units.swell_wave_direction}</li>}
                     </ul>
                 </div>
+            </div>
+            <div className="show-forecast">
+                <button onClick={showForecast}>Show forecasts</button>
             </div>
         </div>
     );

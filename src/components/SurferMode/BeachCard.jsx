@@ -4,8 +4,6 @@ import CamberSands from "../../assets/CamberSands.png"
 import './BeachCard.css'
 import { useEffect, useState } from "react"
 
-const googleMapsApiKey =  process.env.REACT_APP_GOOGLE_API_KEY;
-
 function BeachCard({beach, onArrowClick}) {
 
     const [image, setImage] = useState(CamberSands);
@@ -14,7 +12,7 @@ function BeachCard({beach, onArrowClick}) {
 
     useEffect(() => {
         if (beach.photo) {
-            setImage(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${beach.photo}&key=${googleMapsApiKey}`);
+            setImage(beach.photo);
         }
         else {
             console.log(`Cannot set image for ${beach.display_name}`)

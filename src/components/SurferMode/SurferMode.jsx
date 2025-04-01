@@ -7,6 +7,8 @@ import BeachCard from './BeachCard';
 import BeachInfo from './BeachInfo';
 import './SurferMode.css';
 import { fetchLiveFootTraffic } from './BestTimeApi';
+import BeachChart from './BeachChart';
+import { LoadScript } from '@react-google-maps/api';
 
 // Icons
 import homeIcon from "../../assets/homeIcon.png"
@@ -55,6 +57,9 @@ const quotes = [
     "Keep calm, paddle on, and ride the waves of life."
 ];
 
+const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
+const LIBRARIES = ['places'];
+
 function SurferMode() {
     const [city, setCity] = useState('London');
     const [weatherData, setWeatherData] = useState(null);
@@ -69,6 +74,7 @@ function SurferMode() {
     const [beachesLoading, setBeachesLoading] = useState(false);
     const [selectedBeach, setSelectedBeach] = useState(null);
     const [moreInfoSelected, setMoreInfoSelected] = useState(false);
+    const [forecastGraphShown, setForecastGraphShown] = useState(false);
     const [quote, setQuote] = useState(quotes[0]);
     const [filters, setFilters] = useState({
         wind: null,
@@ -250,19 +256,73 @@ function SurferMode() {
     };
 
     // getting the beaches stuff...
+
+    const beachAPI = async (lat, lon, radius) => {
+        // Note that this part was reserved for the backend as it made use of the REST api version of this
+        // But as we are not allowed to use a backend, i put it here using the other javascript API
+        // there is some formatting here that is only here in order for other parts of the code working without needing to
+        // change those parts as well
+
+        // the place service requies a dummy map to work
+        const map = new window.google.maps.Map(document.createElement("div"));
+        const service = new window.google.maps.places.PlacesService(map);
+        
+        try {
+
+            // The API has a max limit of 20 beaches per call, which means we may need to do more than 1 call to get all the beaches.
+            let beaches = [];
+            let more = true;
+            let nextPageToken = null;
+            let pages = 0;
+            const maxPages = 2;
+    
+            while (more) {
+                pages++;
+                const request = {
+                    location: { lat: lat, lng: lon },
+                    radius: radius,
+                    keyword: "beach",
+                    pagetoken: nextPageToken
+                };
+                const response = await new Promise((resolve, reject) => {
+                    service.nearbySearch(request, (results, status, pagination) => {
+                        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                            resolve({ results, pagination });
+                        } else {
+                            reject(status);
+                        }
+                    });
+                });
+                beaches = [...beaches, ...response.results];
+    
+                // Handle pagination
+                if (response.pagination?.hasNextPage && pages < maxPages) {
+                    nextPageToken = response.pagination.nextPageToken;
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Delay for 2 seconds before requesting next page, as it takes time to generate the page on googles side
+                } else {
+                    more = false;
+                }
+            }
+            console.log((beaches));
+            return {
+                data: beaches,
+            };
+    
+        } catch (error) {
+            console.error("Error fetching beaches:", error);
+            return {
+                error: "Failed to fetch beaches",
+            };
+        }
+    };
+
     const fetchBeaches = useCallback(async () => {
 
         if (!coordinates.lat || !coordinates.lon || error === "City not found. Please try again.") return;
 
-        let response;
-        let radius = 50000;
-
-        try {
-            response = await axios.get(`http://localhost:3001/api/beaches?lat=${coordinates.lat}&lon=${coordinates.lon}&radius=${radius}`)
-        } catch (error) {
-            console.error("Error fetching the beaches:", error)
-            return;
-        }
+        let radius = 50000; //meters
+        let response = await beachAPI(coordinates.lat, coordinates.lon, radius);
+        if (response.error) return;
         
         const beachesData = response.data;
         if (beachesData.length === 0) {
@@ -276,8 +336,8 @@ function SurferMode() {
             // attempt to get the marine data for each location
             try {
 
-                const lat = beach.geometry.location.lat;
-                const lon = beach.geometry.location.lng;
+                const lat = beach.geometry.location.lat();
+                const lon = beach.geometry.location.lng();
 
                 const marineResponse = await axios.get(
                     `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_direction,swell_wave_height,swell_wave_direction&forecast_days=3`
@@ -301,14 +361,15 @@ function SurferMode() {
                         // Generic information
                         display_name: beach.name,
                         place_id: beach.place_id,
-                        lat: beach.geometry.location.lat,
-                        lon: beach.geometry.location.lng,
+                        lat: beach.geometry.location.lat(),
+                        lon: beach.geometry.location.lng(),
                         rating: beach.rating, // google rating
                         // Normal weather stuff
                         temperature: `${Math.round(weatherResponse.data.main.temp)}°C`,
                         description: weatherResponse.data.weather[0].description,
                         // Now the marine stuff
                         times: data.time,
+                        timezone: marineResponse.data.timezone,
                         units: units,
                         wave_height_data: data.wave_height,
                         wave_direction_data: data.wave_direction,
@@ -320,12 +381,11 @@ function SurferMode() {
                         // crowd stuff
                         crowd: crowdData.level !== null ? `${crowdData.level}%` : 'No data available', // Display percentage
                         crowdType: crowdData.type || 'Unknown', // Ensure crowdType is always defined
-                        
                     };
 
                     // If the beach has an associated image, then we can use that instead of the stock photo:
                     if (beach.photos && beach.photos.length > 0) {
-                        newNearestBeaches[beach.place_id].photo = beach.photos[0].photo_reference // there can be multiple images. For now, just take the first one.
+                        newNearestBeaches[beach.place_id].photo = beach.photos[0].getUrl() // there can be multiple images. For now, just take the first one.
                     }
 
                     // Overall score of surfing conditions
@@ -337,7 +397,6 @@ function SurferMode() {
                 continue;
             }
         }
-        console.log(`FInished for lat ${coordinates.lat} and lon ${coordinates.lon} and city ${city}`)
         setNearestBeaches(newNearestBeaches);
     }, [coordinates, error, city])
 
@@ -346,6 +405,7 @@ function SurferMode() {
         setNearestBeaches({});
         setSelectedBeach(null);
         setMoreInfoSelected(null);
+        setForecastGraphShown(false);
         await fetchBeaches();
         setBeachesLoading(false);
     }
@@ -397,6 +457,7 @@ function SurferMode() {
         if (filteredBeaches.length === 0) {
             setSelectedBeach(null); // Removes the opened more-info tab if no beaches match the filters
             setMoreInfoSelected(false); // Close the info card if no beaches match the filters
+            setForecastGraphShown(false);
         }
     };
 
@@ -459,187 +520,206 @@ function SurferMode() {
     const onArrowClick = (beach) => {
         if (selectedBeach && moreInfoSelected && beach.display_name === selectedBeach.display_name) {
             setMoreInfoSelected(false);
+            setForecastGraphShown(false);
         }
         else {
             setSelectedBeach(beach);
             setMoreInfoSelected(true);
+            setForecastGraphShown(false);
         }
     };
 
+    // showing/removing the graph
+
+    const onShowGraphClick = () => {
+        setForecastGraphShown(true);
+    }
+
+    const onHideGraphClick = () => {
+        setForecastGraphShown(false);
+    }
+
 
     return (
-        <div className="container containerSurfers">
-            <div className='header'>
-                <div className='popUpMessage'>
-                    <p className='message'>
-                        {isLoading
-                            ? "Loading..."
-                            : weatherData
-                                ? getPopUpMessage(weatherData.weather[0].id)
-                                : "Check the weather!"}
-                    </p>
-                    <img className='warningIcon' src={warning} alt='Notification' />
-                </div>
-
-                <form onSubmit={handleSubmit} className='searchBar'>
-                    <div className="search-container">
-                        <input
-                            type='text'
-                            placeholder='Search a city'
-                            value={city}
-                            onChange={handleInputChange}
-                            onFocus={() => city.length >= 2 && setShowSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                            aria-label="Search for a city"
-                        />
-                        {showSuggestions && suggestions.length > 0 && (
-                            <div className="suggestions-dropdown">
-                                {suggestions.map((suggestion, index) => (
-                                    <div
-                                        key={index}
-                                        className="suggestion-item"
-                                        onClick={() => handleSuggestionClick(suggestion)}
-                                        role="option"
-                                        aria-selected={false}
-                                    >
-                                        {suggestion.displayName}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+        <LoadScript googleMapsApiKey={GOOGLE_API_KEY} libraries={LIBRARIES}>
+            <div className="container containerSurfers">
+                <div className='header'>
+                    <div className='popUpMessage'>
+                        <p className='message'>
+                            {isLoading
+                                ? "Loading..."
+                                : weatherData
+                                    ? getPopUpMessage(weatherData.weather[0].id)
+                                    : "Check the weather!"}
+                        </p>
+                        <img className='warningIcon' src={warning} alt='Notification' />
                     </div>
-                    <button type="submit" className='searchButton' aria-label="Search">
-                        <img className='searchIcon' src={IconSearch} alt='Search' />
-                    </button>
-                </form>
 
-                <div
-                    className='switchMode'
-                    onClick={() => navigate(-1)}
-                    role="button"
-                    tabIndex={0}
-                    aria-label="Switch to normal mode"
-                    onKeyDown={(e) => e.key === 'Enter' && navigate(-1)}
-                >
-                    <img src={homeIcon} alt='Switch to normal mode' />
-                </div>
-            </div>
-
-            <CurrentTime timezone={weatherData?.timezone} />
-
-            {error ? (
-                <div className="error-container">
-                    <p className="error">{error}</p>
-                </div>
-            ) : (
-                <>
-                    <div className='weatherInfo'>
-                        <img className='weatherIcon' src={weatherIcon} alt={weatherData?.weather?.[0]?.description || 'Weather'} />
-                        <div>
-                            <div>
-                                <p className='temp'>{weatherData ? Math.round(weatherData.main.temp) : '--'}°</p>
-                                <p className='desc'>{weatherData?.weather?.[0]?.description || 'Loading...'}</p>
-                            </div>
-                            <p className='city'>{weatherData?.name || 'Loading...'}</p>
-                        </div>
-                    </div>
-                </>
-            )}
-
-            <div className='beaches'>
-                <div className='cards'>
-                    <div className='cardsContainer'>
-                        <div className='filterDetails'>
-                            <div className='filter' onClick={() => setPopupButton(true)}>
-                                <img className='filterIcon' src={filterIcon} alt='Filter' />
-                            </div>
-
-                            {/* Display selected filter criteria as tabs only if filters are applied */}
-                            {filtersApplied && (
-                                <div className='filterTabs'>
-                                    {filters.wind && <div className='filterTab'>Wind: {filters.wind}</div>}
-                                    {filters.wave && <div className='filterTab'>Wave: {filters.wave}</div>}
-                                    {filters.crowd && <div className='filterTab'>Crowd: {filters.crowd}</div>}
+                    <form onSubmit={handleSubmit} className='searchBar'>
+                        <div className="search-container">
+                            <input
+                                type='text'
+                                placeholder='Search a city'
+                                value={city}
+                                onChange={handleInputChange}
+                                onFocus={() => city.length >= 2 && setShowSuggestions(true)}
+                                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                aria-label="Search for a city"
+                            />
+                            {showSuggestions && suggestions.length > 0 && (
+                                <div className="suggestions-dropdown">
+                                    {suggestions.map((suggestion, index) => (
+                                        <div
+                                            key={index}
+                                            className="suggestion-item"
+                                            onClick={() => handleSuggestionClick(suggestion)}
+                                            role="option"
+                                            aria-selected={false}
+                                        >
+                                            {suggestion.displayName}
+                                        </div>
+                                    ))}
                                 </div>
                             )}
-                            
-                            <PopUp trigger={popupButton} setTrigger={setPopupButton} onClearAll={handleClearAll} onCancel={handleCancel} onApply={handleApply}>
-                                <h3 className='name'>Filters</h3>
+                        </div>
+                        <button type="submit" className='searchButton' aria-label="Search">
+                            <img className='searchIcon' src={IconSearch} alt='Search' />
+                        </button>
+                    </form>
 
-                                <div className='filterOptions'>
-                                    <div className='filterRow'>
-                                        <label>Wind</label>
-                                        <select value={filters.wind || ""} onChange={(e) => setFilters({ ...filters, wind: e.target.value })}>
-                                            <option value="">Select filter</option>
-                                            <option value="Light">Light</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="Strong">Strong</option>
-                                        </select>
-                                    </div>
+                    <div
+                        className='switchMode'
+                        onClick={() => navigate(-1)}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Switch to normal mode"
+                        onKeyDown={(e) => e.key === 'Enter' && navigate(-1)}
+                    >
+                        <img src={homeIcon} alt='Switch to normal mode' />
+                    </div>
+                </div>
 
-                                    <div className='filterRow'>
-                                        <label>Wave</label>
-                                        <select value={filters.wave || ""} onChange={(e) => setFilters({ ...filters, wave: e.target.value })}>
-                                            <option value="">Select filter</option>
-                                            <option value="Small">Small</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="Large">Large</option>
-                                        </select>
-                                    </div>
+                <CurrentTime timezone={weatherData?.timezone} />
 
-                                    <div className='filterRow'>
-                                        <label>Crowd</label>
-                                        <select value={filters.crowd || ""} onChange={(e) => setFilters({ ...filters, crowd: e.target.value })}>
-                                            <option value="">Select filter</option>
-                                            <option value="Quiet">Quiet</option>
-                                            <option value="Moderate">Moderate</option>
-                                            <option value="Busy">Busy</option>
-                                        </select>
-                                    </div>
+                {error ? (
+                    <div className="error-container">
+                        <p className="error">{error}</p>
+                    </div>
+                ) : (
+                    <>
+                        <div className='weatherInfo'>
+                            <img className='weatherIcon' src={weatherIcon} alt={weatherData?.weather?.[0]?.description || 'Weather'} />
+                            <div>
+                                <div>
+                                    <p className='temp'>{weatherData ? Math.round(weatherData.main.temp) : '--'}°</p>
+                                    <p className='desc'>{weatherData?.weather?.[0]?.description || 'Loading...'}</p>
+                                </div>
+                                <p className='city'>{weatherData?.name || 'Loading...'}</p>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                <div className='beaches'>
+                    <div className='cards'>
+                        <div className='cardsContainer'>
+                            <div className='filterDetails'>
+                                <div className='filter' onClick={() => setPopupButton(true)}>
+                                    <img className='filterIcon' src={filterIcon} alt='Filter' />
                                 </div>
 
-                            </PopUp>
+                                {/* Display selected filter criteria as tabs only if filters are applied */}
+                                {filtersApplied && (
+                                    <div className='filterTabs'>
+                                        {filters.wind && <div className='filterTab'>Wind: {filters.wind}</div>}
+                                        {filters.wave && <div className='filterTab'>Wave: {filters.wave}</div>}
+                                        {filters.crowd && <div className='filterTab'>Crowd: {filters.crowd}</div>}
+                                    </div>
+                                )}
+                                
+                                <PopUp trigger={popupButton} setTrigger={setPopupButton} onClearAll={handleClearAll} onCancel={handleCancel} onApply={handleApply}>
+                                    <h3 className='name'>Filters</h3>
 
+                                    <div className='filterOptions'>
+                                        <div className='filterRow'>
+                                            <label>Wind</label>
+                                            <select value={filters.wind || ""} onChange={(e) => setFilters({ ...filters, wind: e.target.value })}>
+                                                <option value="">Select filter</option>
+                                                <option value="Light">Light</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="Strong">Strong</option>
+                                            </select>
+                                        </div>
+
+                                        <div className='filterRow'>
+                                            <label>Wave</label>
+                                            <select value={filters.wave || ""} onChange={(e) => setFilters({ ...filters, wave: e.target.value })}>
+                                                <option value="">Select filter</option>
+                                                <option value="Small">Small</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="Large">Large</option>
+                                            </select>
+                                        </div>
+
+                                        <div className='filterRow'>
+                                            <label>Crowd</label>
+                                            <select value={filters.crowd || ""} onChange={(e) => setFilters({ ...filters, crowd: e.target.value })}>
+                                                <option value="">Select filter</option>
+                                                <option value="Quiet">Quiet</option>
+                                                <option value="Moderate">Moderate</option>
+                                                <option value="Busy">Busy</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </PopUp>
+
+                            </div>
+                            <div className="forecast-graph">
+                                {forecastGraphShown && (
+                                    <BeachChart beach={selectedBeach} onHide={onHideGraphClick}/>
+                                )}
+                            </div>
+                            {error === "City not found. Please try again." ? (
+                                <p>Enter a valid location...</p>
+                            ) : beachesLoading ? (
+                                <p style={{ textAlign: 'center' }}>Loading forecast...</p>
+                            ) : (filteredBeaches || Object.values(nearestBeaches)).length > 0 ? (
+                                (filteredBeaches || Object.values(nearestBeaches)).map((beach, i) => (
+                                    <BeachCard
+                                        key={i}
+                                        beach={beach}
+                                        onArrowClick={onArrowClick}
+                                    />
+                                ))
+                            ) : (
+                                <p>No beaches found...</p>
+                            )}
                         </div>
-                        {error === "City not found. Please try again." ? (
-                            <p>Enter a valid location...</p>
-                        ) : beachesLoading ? (
-                            <p style={{ textAlign: 'center' }}>Loading forecast...</p>
-                        ) : (filteredBeaches || Object.values(nearestBeaches)).length > 0 ? (
-                            (filteredBeaches || Object.values(nearestBeaches)).map((beach, i) => (
-                                <BeachCard
-                                    key={i}
-                                    beach={beach}
-                                    onArrowClick={onArrowClick}
-                                />
-                            ))
+                    </div>
+
+                    <div className='additionalInfo'>
+                        <div className='quoteSection'>
+                            <img className='quoteIcon' src={quoteIcon} alt='Quote' />
+                            <p className='quote'>{quote}</p>
+                        </div>
+                        {moreInfoSelected && selectedBeach ? (
+                            <BeachInfo beach={selectedBeach} showForecast={onShowGraphClick}/>
+                        ) : (filteredBeaches && filteredBeaches.length === 0) || (!filteredBeaches && Object.keys(nearestBeaches).length === 0) ? (
+                            <div className='clickOnBeach no-beaches'>
+                                <img className='waveIcon' src={wave} alt='Wave' />
+                                <p className='infoText'>No beaches available to view. Adjust your filters.</p>
+                            </div>
                         ) : (
-                            <p>No beaches found...</p>
+                            <div className='clickOnBeach'>
+                                <img className='waveIcon' src={wave} alt='Wave' />
+                                <p className='infoText'>Click on a beach<br />to see more info</p>
+                            </div>
                         )}
                     </div>
                 </div>
-
-                <div className='additionalInfo'>
-                    <div className='quoteSection'>
-                        <img className='quoteIcon' src={quoteIcon} alt='Quote' />
-                        <p className='quote'>{quote}</p>
-                    </div>
-                    {moreInfoSelected && selectedBeach ? (
-                        <BeachInfo beach={selectedBeach} />
-                    ) : (filteredBeaches && filteredBeaches.length === 0) || (!filteredBeaches && Object.keys(nearestBeaches).length === 0) ? (
-                        <div className='clickOnBeach no-beaches'>
-                            <img className='waveIcon' src={wave} alt='Wave' />
-                            <p className='infoText'>No beaches available to view. Adjust your filters.</p>
-                        </div>
-                    ) : (
-                        <div className='clickOnBeach'>
-                            <img className='waveIcon' src={wave} alt='Wave' />
-                            <p className='infoText'>Click on a beach<br />to see more info</p>
-                        </div>
-                    )}
-                </div>
             </div>
-        </div>
+        </LoadScript>
     );
 };
 

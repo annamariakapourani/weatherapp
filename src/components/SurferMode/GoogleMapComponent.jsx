@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 
 const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY
 
-// TODO: still need to fix
-
 function GoogleMapComponent({lat, lon}) {
     const center = {lat: parseFloat(lat), lon: parseFloat(lon)};
     const [mapLoaded, setMapLoaded] = useState(false);
