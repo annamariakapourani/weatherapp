@@ -49,3 +49,9 @@
 .beachDetailsResultsDivMoreInfo {
     border-left: 1px solid black;
 }
+
+.map-container {
+    height: 15em;
+    width: 100%;
+    margin-top: 0.2em;
+}

@@ -21,6 +21,16 @@ function BeachInfo({beachData}) {
                         >
                             Open in Google Maps
                         </a>
+                        <div className="map-container">
+                            <iframe
+                                title="Beach Location"
+                                width="100%"
+                                height="100%"
+                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${(parseFloat(beachData.lon) - 0.01).toFixed(6)},${(parseFloat(beachData.lat) - 0.01).toFixed(6)},${(parseFloat(beachData.lon) + 0.01).toFixed(6)},${(parseFloat(beachData.lat) + 0.01).toFixed(6)}&layer=mapnik&marker=${beachData.lat},${beachData.lon}`}
+                                style={{ border: "1px solid #ccc" }}
+                                allowFullScreen
+                            />
+                        </div>
                     </div>
                     <div className='beachDetailsDivMoreInfo'>
                         <div className='beachDetailsTitlesDivMoreInfo'>

@@ -8,9 +8,9 @@ import { CurrentTime } from '../Shared/CurrentTime';
 import SearchBar from '../Shared/SearchBar';
 
 // Icons
+import sunIcon from "../../assets/sunIcon.png"
 import surferIcon from "./../../assets/surferIcon.png"
 import bellIcon from "../../assets/bellIcon.png"
-import sunIcon from "../../assets/sunIcon.png"
 import visibility from "../../assets/visibility.png"
 import humidity from "../../assets/humidity.png"
 import sunrise from "../../assets/sunrise.png"
