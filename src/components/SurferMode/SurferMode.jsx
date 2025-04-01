@@ -6,6 +6,7 @@ import { CurrentTime } from '../../utils/CurrentTime';
 import BeachCard from './BeachCard';
 import BeachInfo from './BeachInfo';
 import './SurferMode.css';
+import { fetchLiveFootTraffic } from './BestTimeApi';
 
 // Icons
 import homeIcon from "../../assets/homeIcon.png"
@@ -74,7 +75,9 @@ function SurferMode() {
         wave: null,
         crowd: null
     });
-
+    const [filteredBeaches, setFilteredBeaches] = useState(null); // New state for filtered beaches
+    const [filtersApplied, setFiltersApplied] = useState(false);
+    
     useEffect(() => {
         const internal = setInterval(() => {
             setQuote(previousQuote => {
@@ -111,6 +114,8 @@ function SurferMode() {
         if (!city) return;
 
         setIsLoading(true);
+        setNearestBeaches({}); // Clear previous beaches
+        setFilteredBeaches(null); // Clear filtered beaches
         try {
             setError(null);
             const response = await axios.get(
@@ -282,6 +287,10 @@ function SurferMode() {
                     const weatherResponse = await axios.get(
                         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
                     );
+
+                    // Fetch live crowd data using BestTime API
+                    const crowdData = await fetchLiveFootTraffic(beach.name, beach.vicinity || 'Unknown Address');
+
                     newNearestBeaches[beach.place_id] = {
                         display_name: beach.name,
                         place_id: beach.place_id,
@@ -298,7 +307,11 @@ function SurferMode() {
                         swellWaveHeight: `${data.swell_wave_height} ${units.swell_wave_height}`,
                         swellWaveDirection: `${data.swell_wave_direction} ${units.swell_wave_direction}`,
                         score: generateBeachScore(data),
+                        crowd: crowdData.level !== null ? `${crowdData.level}%` : 'No data available', // Display percentage
+                        crowdType: crowdData.type || 'Unknown', // Ensure crowdType is always defined
+                        
                     };
+
                     // If the beach has an associated image, then we can use that instead of the stock photo:
                     if (beach.photos && beach.photos.length > 0) {
                         newNearestBeaches[beach.place_id].photo = beach.photos[0].photo_reference // there can be multiple images. For now, just take the first one.
@@ -318,54 +331,69 @@ function SurferMode() {
 
     // Filter beaches based on the selected filters
     const applyFilters = () => {
-        if (!nearestBeaches.length) return;
+        if (!Object.keys(nearestBeaches).length) {
+            console.warn("No beaches to filter.");
+            return; // Ensure there are beaches to filter
+        }
+    
+        console.log("Filters:", filters); // Debug filters
 
-        const filteredBeaches = nearestBeaches.filter(beach => {
-            const { windWaveHeight, waveHeight, rating } = beach;
-
+        const filteredBeaches = Object.values(nearestBeaches).filter(beach => {
+            const { windWaveHeight, waveHeight, crowdType } = beach;
+    
             let windCondition = true;
             let waveCondition = true;
             let crowdCondition = true;
-
+    
+            // Wind filter
             if (filters.wind) {
                 const windValue = parseFloat(windWaveHeight);
                 if (filters.wind === "Light") windCondition = windValue < 0.5;
                 else if (filters.wind === "Medium") windCondition = windValue >= 0.5 && windValue <= 1.5;
                 else if (filters.wind === "Strong") windCondition = windValue > 1.5;
             }
-
+    
+            // Wave filter
             if (filters.wave) {
                 const waveValue = parseFloat(waveHeight);
-                if (filters.wave === "Small") waveCondition = waveValue < 1.5;
-                else if (filters.wave === "Medium") waveCondition = waveValue >= 1.5 && waveValue <= 3;
-                else if (filters.wave === "Large") waveCondition = waveValue > 3;
+                if (filters.wave === "Small") waveCondition = waveValue < 0.5;
+                else if (filters.wave === "Medium") waveCondition = waveValue >= 0.5 && waveValue <= 2.5;
+                else if (filters.wave === "Large") waveCondition = waveValue > 2.5;
             }
-
+    
+            // Crowd filter
             if (filters.crowd) {
-                if (filters.crowd === "Light") crowdCondition = rating >= 4;
-                else if (filters.crowd === "Medium") crowdCondition = rating >= 2 && rating < 4;
-                else if (filters.crowd === "Large") crowdCondition = rating < 2;
+                if (filters.crowd === "Quiet") crowdCondition = crowdType === "Low";
+                else if (filters.crowd === "Moderate") crowdCondition = crowdType === "Moderate";
+                else if (filters.crowd === "Busy") crowdCondition = crowdType === "High";
             }
-
+    
             return windCondition && waveCondition && crowdCondition;
         });
-
-        setNearestBeaches(filteredBeaches);
+    
+        setFilteredBeaches(filteredBeaches); // Update the filtered beaches state
+        if (filteredBeaches.length === 0) {
+            setSelectedBeach(null); // Removes the opened more-info tab if no beaches match the filters
+            setMoreInfoSelected(false); // Close the info card if no beaches match the filters
+        }
     };
 
     // Filter actions
     const handleClearAll = () => {
         setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
-        fetchBeaches(); // Reload all beaches without filters
+        setFilteredBeaches(null); // Reset filtered beaches
+        setFiltersApplied(false); // Reset filters applied state
+
+        //fetchBeaches(); // Reload all beaches without filters
     };
 
     const handleCancel = () => {
         console.log("Filter action cancelled."); // Log the cancel action
-        setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
     };
 
     const handleApply = () => {
         applyFilters(); // Apply the selected filters
+        setFiltersApplied(true); // Mark filters as applied
     };
 
     // Effects
@@ -500,6 +528,15 @@ function SurferMode() {
                                 <img className='filterIcon' src={filterIcon} alt='Filter' />
                             </div>
 
+                            {/* Display selected filter criteria as tabs only if filters are applied */}
+                            {filtersApplied && (
+                                <div className='filterTabs'>
+                                    {filters.wind && <div className='filterTab'>Wind: {filters.wind}</div>}
+                                    {filters.wave && <div className='filterTab'>Wave: {filters.wave}</div>}
+                                    {filters.crowd && <div className='filterTab'>Crowd: {filters.crowd}</div>}
+                                </div>
+                            )}
+                            
                             <PopUp trigger={popupButton} setTrigger={setPopupButton} onClearAll={handleClearAll} onCancel={handleCancel} onApply={handleApply}>
                                 <h3 className='name'>Filters</h3>
 
@@ -528,9 +565,9 @@ function SurferMode() {
                                         <label>Crowd</label>
                                         <select value={filters.crowd || ""} onChange={(e) => setFilters({ ...filters, crowd: e.target.value })}>
                                             <option value="">Select filter</option>
-                                            <option value="Light">Light</option>
-                                            <option value="Medium">Medium</option>
-                                            <option value="Large">Large</option>
+                                            <option value="Quiet">Quiet</option>
+                                            <option value="Moderate">Moderate</option>
+                                            <option value="Busy">Busy</option>
                                         </select>
                                     </div>
                                 </div>
@@ -538,12 +575,12 @@ function SurferMode() {
                             </PopUp>
 
                         </div>
-                        {error === "City not found. Please try again." ?
-                            (<p>Enter a valid location...</p>)
-                        : beachesLoading ?
-                            (<p style={{ textAlign: 'center' }}>Loading forecast...</p>)
-                        : Object.keys(nearestBeaches).length > 0 ? (
-                            Object.values(nearestBeaches).map((beach, i) => (
+                        {error === "City not found. Please try again." ? (
+                            <p>Enter a valid location...</p>
+                        ) : beachesLoading ? (
+                            <p style={{ textAlign: 'center' }}>Loading forecast...</p>
+                        ) : (filteredBeaches || Object.values(nearestBeaches)).length > 0 ? (
+                            (filteredBeaches || Object.values(nearestBeaches)).map((beach, i) => (
                                 <BeachCard
                                     key={i}
                                     beach={beach}
@@ -561,15 +598,19 @@ function SurferMode() {
                         <img className='quoteIcon' src={quoteIcon} alt='Quote' />
                         <p className='quote'>{quote}</p>
                     </div>
-                        {(moreInfoSelected) ? (
-                            <BeachInfo
-                                beachData={selectedBeach}
-                            />) : (
-                            <div className='clickOnBeach'>
-                                <img className='waveIcon' src={wave} alt='Wave' />
-                                <p className='infoText'>Click on beach<br />to see more info</p>
-                            </div>)
-                        }
+                    {moreInfoSelected && selectedBeach ? (
+                        <BeachInfo beachData={selectedBeach} />
+                    ) : (filteredBeaches && filteredBeaches.length === 0) || (!filteredBeaches && Object.keys(nearestBeaches).length === 0) ? (
+                        <div className='clickOnBeach no-beaches'>
+                            <img className='waveIcon' src={wave} alt='Wave' />
+                            <p className='infoText'>No beaches available to view. Adjust your filters.</p>
+                        </div>
+                    ) : (
+                        <div className='clickOnBeach'>
+                            <img className='waveIcon' src={wave} alt='Wave' />
+                            <p className='infoText'>Click on a beach<br />to see more info</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

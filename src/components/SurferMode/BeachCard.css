@@ -106,3 +106,16 @@ button {
 .score-GOOD {
     color: #4caf50;
 }
+
+.crowd-low {
+    color: green;
+}
+.crowd-moderate {
+    color: orange;
+}
+.crowd-high {
+    color: red;
+}
+.crowd-unknown {
+    color: gray;
+}

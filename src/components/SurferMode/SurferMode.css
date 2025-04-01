@@ -66,7 +66,8 @@ body {
 
 .filterDetails {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 1em; /* Space between the filter icon and tabs */
 }
 
 /* Beach Content */
@@ -143,8 +144,42 @@ body {
     align-self: flex-start;
 }
 
+/* Center the waveIcon and text */
 .clickOnBeach {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     margin-top: 2em;
+}
+
+.clickOnBeach img.waveIcon {
+    width: 7em; 
+    height: auto;
+    margin-bottom: 1em; /* Space between the icon and the text */
+}
+
+.clickOnBeach p.infoText {
+    font-size: 1.2em;
+    color: #555;
+    margin: 0;
+}
+
+.filterTabs {
+    display: flex;
+    gap: 0.5em;
+}
+
+.filterTab {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 0.5em 1em;
+    border-radius: 20px;
+    font-size: 0.9em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: default;
+    white-space: nowrap;
 }
 
 .infoText {

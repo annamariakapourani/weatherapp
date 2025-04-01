@@ -11,6 +11,8 @@ const googleMapsApiKey =  process.env.REACT_APP_GOOGLE_API_KEY;
 function BeachCard({beach, onArrowClick}) {
 
     const [image, setImage] = useState(CamberSands);
+    const crowdTypeClass = beach.crowdType ? beach.crowdType.toLowerCase() : 'unknown';
+
 
     useEffect(() => {
         if (beach.photo) {
@@ -29,6 +31,9 @@ function BeachCard({beach, onArrowClick}) {
                 <div className='beachInfo'>
                     <p>Beach temperature: {beach.temperature}</p>
                     <p>Description: {beach.description}</p>
+                    <p className={`crowd-${crowdTypeClass}`}>
+                        Crowd Level: {beach.crowd} ({beach.crowdType || 'Unknown'})
+                    </p>
                 </div>
             </div>
             <div className='beachRating'> 
