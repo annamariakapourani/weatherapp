@@ -180,14 +180,14 @@ function SurferMode() {
         // Wave height stuff
         if (wave_height >= 1.5 && wave_height <= 3) { // perfect score
             rating += 2;
-        } else if (wave_height >= 1 && wave_height < 1.5 || wave_height > 3 && wave_height <= 4) { // almost there
+        } else if ((wave_height >= 1 && wave_height < 1.5) || (wave_height > 3 && wave_height <= 4)) { // almost there
             rating += 1;
         }
 
         // Wave period stuff
         if (wave_period >= 10 && wave_period <= 15) {
             rating += 2;
-        } else if (wave_period >= 8 && wave_period < 10 || wave_period > 15 && wave_period <= 18) {
+        } else if ((wave_period >= 8 && wave_period < 10) || (wave_period > 15 && wave_period <= 18)) {
             rating += 1;
         }
 
@@ -258,7 +258,7 @@ function SurferMode() {
         let radius = 50000;
 
         try {
-            response = await axios.get(`/api/beaches?lat=${coordinates.lat}&lon=${coordinates.lon}&radius=${radius}`)
+            response = await axios.get(`http://localhost:3001/api/beaches?lat=${coordinates.lat}&lon=${coordinates.lon}&radius=${radius}`)
         } catch (error) {
             console.error("Error fetching the beaches:", error)
             return;
@@ -339,7 +339,7 @@ function SurferMode() {
         }
         console.log(`FInished for lat ${coordinates.lat} and lon ${coordinates.lon} and city ${city}`)
         setNearestBeaches(newNearestBeaches);
-    }, [coordinates, error])
+    }, [coordinates, error, city])
 
     const invokeFetchBeaches = async () => {
         setBeachesLoading(true);
