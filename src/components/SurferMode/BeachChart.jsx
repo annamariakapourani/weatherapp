@@ -49,16 +49,21 @@ const BeachChart = ({ beach, onHide }) => {
                     <LineChart data={data}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="time" />
-                        <YAxis />
+                        <YAxis yAxisId="not-height"/>
+                        <YAxis yAxisId="height"/>
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="wave_height" stroke="#8884d8" name={`Wave Height (${beach.units.wave_height})`} />
-                        <Line type="monotone" dataKey="wave_direction" stroke="#82ca9d" name={`Wave Direction (${beach.units.wave_direction})`} />
-                        <Line type="monotone" dataKey="wave_period" stroke="#ffc658" name={`Wave Period (${beach.units.wave_period})`} />
-                        <Line type="monotone" dataKey="wind_wave_height" stroke="#ff7300" name={`Wind Wave Height (${beach.units.wind_wave_height})`} />
-                        <Line type="monotone" dataKey="wind_wave_direction" stroke="#0088FE" name={`Wind Wave Direction (${beach.units.wind_wave_direction})`} />
-                        <Line type="monotone" dataKey="swell_wave_height" stroke="#FF0000" name={`Swell Wave Height (${beach.units.swell_wave_height})`} />
-                        <Line type="monotone" dataKey="swell_wave_direction" stroke="#800080" name={`Swell Wave Direction (${beach.units.swell_wave_direction})`} />
+                        {/* We have two y axis here as the heights are much more smaller in number compared to the other stats, so looks like a straight line on the graph otherwise*/}
+                        {/* Everything but height */}
+                        <Line type="monotone" dataKey="wave_direction" stroke="#82ca9d" name={`Wave Direction (${beach.units.wave_direction})`} yAxisId="not-height" />
+                        <Line type="monotone" dataKey="wave_period" stroke="#ffc658" name={`Wave Period (${beach.units.wave_period})`} yAxisId="not-height" />
+                        <Line type="monotone" dataKey="wind_wave_direction" stroke="#0088FE" name={`Wind Wave Direction (${beach.units.wind_wave_direction})`} yAxisId="not-height" />
+                        <Line type="monotone" dataKey="swell_wave_direction" stroke="#800080" name={`Swell Wave Direction (${beach.units.swell_wave_direction})`} yAxisId="not-height" />
+
+                        {/* Height */}
+                        <Line type="monotone" dataKey="wave_height" stroke="#8884d8" name={`Wave Height (${beach.units.wave_height})`} yAxisId="height" />
+                        <Line type="monotone" dataKey="wind_wave_height" stroke="#ff7300" name={`Wind Wave Height (${beach.units.wind_wave_height})`} yAxisId="height"/>
+                        <Line type="monotone" dataKey="swell_wave_height" stroke="#FF0000" name={`Swell Wave Height (${beach.units.swell_wave_height})`} yAxisId="height"/>
                     </LineChart>
                 </ResponsiveContainer>
             </div>

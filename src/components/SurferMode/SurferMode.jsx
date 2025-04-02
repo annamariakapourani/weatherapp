@@ -8,6 +8,7 @@ import BeachInfo from './BeachInfo';
 import './SurferMode.css';
 import BeachChart from './BeachChart';
 import { LoadScript } from '@react-google-maps/api';
+import beachAPI from './beachAPI';
 
 // Icons
 import homeIcon from "../../assets/homeIcon.png"
@@ -220,10 +221,8 @@ function SurferMode() {
         // Swell wave height scoring
         if (swell_wave_height >= 1 && swell_wave_height <= 2.5) {
             rating += 2; // Ideal swell height
-        } else if (swell_wave_height >= 0.5 && swell_wave_height < 1) {
+        } else if (swell_wave_height >= 0.5 && swell_wave_height <= 3.5) {
             rating += 1; // Almost ideal
-        } else if (swell_wave_height > 2.5 && swell_wave_height <= 3.5) {
-            rating += 1; // Slightly larger but still acceptable
         }
 
         // Temperature scoring
@@ -233,77 +232,10 @@ function SurferMode() {
             rating += 1;
         }
 
+        if (rating <= 5) return "POOR";
+        else if (rating <= 10) return "OK";
+        else return "GOOD";
         
-    };
-
-    // getting the beaches stuff...
-
-    const beachAPI = async (lat, lon, radius) => {
-        // Note that this part was reserved for the backend as it made use of the REST api version of this
-        // But as we are not allowed to use a backend, i put it here using the other javascript API
-        // there is some formatting here that is only here in order for other parts of the code working without needing to
-        // change those parts as well
-
-        let maxTries = 5;
-        if (!window.google) {
-            maxTries--;
-            await new Promise(resolve => setTimeout(resolve, 1000)); // wait 1 second for the script to load
-            if (maxTries <= 0) {
-                return {error: "Script has not loaded yet, try again."}
-            }
-        }
-
-        // the place service requies a dummy map to work
-        const map = new window.google.maps.Map(document.createElement("div"));
-        const service = new window.google.maps.places.PlacesService(map);
-        
-        try {
-
-            // The API has a max limit of 20 beaches per call, which means we may need to do more than 1 call to get all the beaches.
-            let beaches = [];
-            let more = true;
-            let nextPageToken = null;
-            let pages = 0;
-            const maxPages = 2;
-    
-            while (more) {
-                pages++;
-                const request = {
-                    location: { lat: lat, lng: lon },
-                    radius: radius,
-                    keyword: "beach",
-                    pagetoken: nextPageToken
-                };
-                const response = await new Promise((resolve, reject) => {
-                    service.nearbySearch(request, (results, status, pagination) => {
-                        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                            resolve({ results, pagination });
-                        } else {
-                            reject(status);
-                        }
-                    });
-                });
-                beaches = [...beaches, ...response.results];
-    
-                // Handle pagination
-                if (response.pagination?.hasNextPage && pages < maxPages) {
-                    nextPageToken = response.pagination.nextPageToken;
-                    await new Promise(resolve => setTimeout(resolve, 2000)); // Delay for 2 seconds before requesting next page, as it takes time to generate the page on googles side
-                } else {
-                    more = false;
-                }
-            }
-            console.log((beaches));
-            return {
-                data: beaches,
-            };
-    
-        } catch (error) {
-            console.error("Error fetching beaches:", error);
-            return {
-                error: "Failed to fetch beaches",
-            };
-        }
     };
 
     const fetchBeaches = useCallback(async () => {
@@ -390,12 +322,16 @@ function SurferMode() {
 
     const invokeFetchBeaches = async () => {
         setBeachesLoading(true);
-        setNearestBeaches({});
-        setSelectedBeach(null);
-        setMoreInfoSelected(null);
-        setForecastGraphShown(false);
+        resetBeachData();
         await fetchBeaches();
         setBeachesLoading(false);
+    }
+
+    const resetBeachData = () => {
+        setNearestBeaches({});
+        setSelectedBeach(null);
+        setMoreInfoSelected(false);
+        setForecastGraphShown(false);
     }
 
     // Filter beaches based on the selected filters
@@ -490,8 +426,7 @@ function SurferMode() {
 
     // Effects
     useEffect(() => {
-        setNearestBeaches({}); // Clear previous beaches
-        setFilteredBeaches(null); // Clear filtered beaches
+        resetBeachData();
         fetchData();
         invokeFetchBeaches();
     }, []);
@@ -510,18 +445,16 @@ function SurferMode() {
     };
 
     const handleSuggestionClick = (suggestion) => {
+        resetBeachData();
         setCity(suggestion.name);
         setSuggestions([]);
         setShowSuggestions(false);
-        setNearestBeaches({}); // Clear previous beaches
-        setFilteredBeaches(null); // Clear filtered beaches
         fetchData();
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setNearestBeaches({}); // Clear previous beaches
-        setFilteredBeaches(null); // Clear filtered beaches
+        resetBeachData();
         fetchData();
     };
 
