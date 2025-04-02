@@ -178,8 +178,32 @@ body {
     border-radius: 20px;
     font-size: 0.9em;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
     cursor: default;
     white-space: nowrap;
+}
+
+.removeFilter {
+    background-color: #ff4d4d;
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 0.2em 0.5em;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.removeFilter:hover {
+    background-color: #ff1a1a;
+}
+
+.filterOptions select, .filterRow select option {
+    cursor: pointer;
 }
 
 .infoText {

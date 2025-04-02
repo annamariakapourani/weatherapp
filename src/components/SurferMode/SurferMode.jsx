@@ -6,7 +6,6 @@ import { CurrentTime } from '../../utils/CurrentTime';
 import BeachCard from './BeachCard';
 import BeachInfo from './BeachInfo';
 import './SurferMode.css';
-import { fetchLiveFootTraffic } from './BestTimeApi';
 import BeachChart from './BeachChart';
 import { LoadScript } from '@react-google-maps/api';
 
@@ -79,7 +78,7 @@ function SurferMode() {
     const [filters, setFilters] = useState({
         wind: null,
         wave: null,
-        crowd: null
+        swell: null,
     });
     const [filteredBeaches, setFilteredBeaches] = useState(null); // New state for filtered beaches
     const [filtersApplied, setFiltersApplied] = useState(false);
@@ -180,7 +179,7 @@ function SurferMode() {
         const swell_wave_height = beach.swell_wave_height_data[0]; // 1 - 2.5 is ideal
         const swell_wave_direction = beach.swell_wave_direction_data[0];
         const temperature = parseFloat(beach.temperature); // between 20 and 30 is ideal
-        const crowdType = beach.crowdType;
+        
         let rating = 0;
 
         // Wave height stuff
@@ -220,9 +219,11 @@ function SurferMode() {
 
         // Swell wave height scoring
         if (swell_wave_height >= 1 && swell_wave_height <= 2.5) {
-            rating += 2;
-        } else if (swell_wave_height >= 0.5 && swell_wave_height <= 3) {
-            rating += 1;
+            rating += 2; // Ideal swell height
+        } else if (swell_wave_height >= 0.5 && swell_wave_height < 1) {
+            rating += 1; // Almost ideal
+        } else if (swell_wave_height > 2.5 && swell_wave_height <= 3.5) {
+            rating += 1; // Slightly larger but still acceptable
         }
 
         // Temperature scoring
@@ -232,27 +233,7 @@ function SurferMode() {
             rating += 1;
         }
 
-        // Crowd scoring is considered, if present...
-
-        if (!crowdType) {
-            // Final score classification
-            if (rating <= 5) return "POOR";
-            else if (rating <= 10) return "OK";
-            else return "GOOD";
-        }
-        else {
-            if (crowdType === "Low") {
-                rating += 1;
-            } else if (crowdType === "Moderate") {
-                rating += 0;
-            } else if (crowdType === "High") {
-                rating -= 1;
-            }
-            // Final score classification
-            if (rating <= 6) return "POOR";
-            else if (rating <= 11) return "OK";
-            else return "GOOD";
-        }
+        
     };
 
     // getting the beaches stuff...
@@ -363,9 +344,6 @@ function SurferMode() {
                         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.REACT_APP_OWM_API_KEY}`
                     );
 
-                    // Fetch live crowd data using BestTime API
-                    const crowdData = await fetchLiveFootTraffic(beach.name, beach.vicinity || 'Unknown Address');
-
                     newNearestBeaches[beach.place_id] = {
                         // Generic information
                         display_name: beach.name,
@@ -387,9 +365,10 @@ function SurferMode() {
                         wind_wave_direction_data: data.wind_wave_direction,
                         swell_wave_height_data: data.swell_wave_height,
                         swell_wave_direction_data: data.swell_wave_direction,
-                        // crowd stuff
-                        crowd: crowdData.level !== null ? `${crowdData.level}%` : 'No data available', // Display percentage
-                        crowdType: crowdData.type || 'Unknown', // Ensure crowdType is always defined
+                        // for the sake of the filters, we need to have the data in a more readable format
+                        windWaveHeight: data.wind_wave_height?.[0] || 0, // Default to 0 if missing
+                        waveHeight: data.wave_height?.[0] || 0, // Default to 0 if missing
+                        swell_wave_height_data: data.swell_wave_height || [], // Default to empty array if missing                    
                     };
 
                     // If the beach has an associated image, then we can use that instead of the stock photo:
@@ -420,49 +399,54 @@ function SurferMode() {
     }
 
     // Filter beaches based on the selected filters
-    const applyFilters = () => {
-        console.log("applying filters")
+    const applyFilters = (updatedFilters = filters) => {
         if (!Object.keys(nearestBeaches).length) {
             console.warn("No beaches to filter.");
             return; // Ensure there are beaches to filter
         }
-    
-        console.log("Filters:", filters); // Debug filters
 
         const filteredBeaches = Object.values(nearestBeaches).filter(beach => {
-            const { windWaveHeight, waveHeight, crowdType } = beach;
+            const { windWaveHeight, waveHeight, swell_wave_height_data } = beach;
     
             let windCondition = true;
             let waveCondition = true;
-            let crowdCondition = true;
+            let swellCondition = true;
     
             // Wind filter
-            if (filters.wind) {
+            if (updatedFilters.wind) {
                 const windValue = parseFloat(windWaveHeight);
-                if (filters.wind === "Light") windCondition = windValue < 0.5;
-                else if (filters.wind === "Medium") windCondition = windValue >= 0.5 && windValue <= 1.5;
-                else if (filters.wind === "Strong") windCondition = windValue > 1.5;
+                if (updatedFilters.wind === "Light") windCondition = windValue < 0.5;
+                else if (updatedFilters.wind === "Medium") windCondition = windValue >= 0.5 && windValue <= 1.5;
+                else if (updatedFilters.wind === "Strong") windCondition = windValue > 1.5;
             }
     
             // Wave filter
-            if (filters.wave) {
+            if (updatedFilters.wave) {
                 const waveValue = parseFloat(waveHeight);
-                if (filters.wave === "Small") waveCondition = waveValue < 0.5;
-                else if (filters.wave === "Medium") waveCondition = waveValue >= 0.5 && waveValue <= 2.5;
-                else if (filters.wave === "Large") waveCondition = waveValue > 2.5;
+                if (updatedFilters.wave === "Small") waveCondition = waveValue < 0.5;
+                else if (updatedFilters.wave === "Medium") waveCondition = waveValue >= 0.5 && waveValue <= 2.5;
+                else if (updatedFilters.wave === "Large") waveCondition = waveValue > 2.5;
             }
     
-            // Crowd filter
-            if (filters.crowd) {
-                if (filters.crowd === "Quiet") crowdCondition = crowdType === "Low";
-                else if (filters.crowd === "Moderate") crowdCondition = crowdType === "Moderate";
-                else if (filters.crowd === "Busy") crowdCondition = crowdType === "High";
-            }
+            // Swell filter
+            if (updatedFilters.swell) {
+                const swellValue = parseFloat(swell_wave_height_data); 
+                if (updatedFilters.swell === "Low") swellCondition = swellValue < 1;
+                else if (updatedFilters.swell === "Moderate") swellCondition = swellValue >= 1 && swellValue <= 2.5;
+                else if (updatedFilters.swell === "High") swellCondition = swellValue > 2.5;
+            }           
     
-            return windCondition && waveCondition && crowdCondition;
+            return windCondition && waveCondition && swellCondition;
         });
     
         setFilteredBeaches(filteredBeaches); // Update the filtered beaches state
+        
+        // Close the "More Info" tab if the selected beach is no longer in the filtered beaches
+        if (selectedBeach && !filteredBeaches.some(beach => beach.place_id === selectedBeach.place_id)) {
+            setSelectedBeach(null);
+            setMoreInfoSelected(false);
+        }
+
         if (filteredBeaches.length === 0) {
             setSelectedBeach(null); // Removes the opened more-info tab if no beaches match the filters
             setMoreInfoSelected(false); // Close the info card if no beaches match the filters
@@ -470,9 +454,25 @@ function SurferMode() {
         }
     };
 
+    const removeFilter = (filterKey) => {
+        setFilters((prevFilters) => {
+            const updatedFilters = {
+                ...prevFilters,
+                [filterKey]: null, // Remove the selected filter
+            };
+            applyFilters(updatedFilters); // Reapply filters with the updated criteria
+            
+             // Close the "More Info" tab
+            setSelectedBeach(null);
+            setMoreInfoSelected(false);
+
+            return updatedFilters;
+        });
+    };
+    
     // Filter actions
     const handleClearAll = () => {
-        setFilters({ wind: null, wave: null, crowd: null }); // Reset all filters
+        setFilters({ wind: null, wave: null, swell: null }); // Reset all filters
         setFilteredBeaches(null); // Reset filtered beaches
         setFiltersApplied(false); // Reset filters applied state
 
@@ -639,11 +639,28 @@ function SurferMode() {
 
                                 {/* Display selected filter criteria as tabs only if filters are applied */}
                                 {filtersApplied && (
+                                    
                                     <div className='filterTabs'>
-                                        {filters.wind && <div className='filterTab'>Wind: {filters.wind}</div>}
-                                        {filters.wave && <div className='filterTab'>Wave: {filters.wave}</div>}
-                                        {filters.crowd && <div className='filterTab'>Crowd: {filters.crowd}</div>}
+                                        {filters.wind && (
+                                            <div className='filterTab'>
+                                                Wind: {filters.wind}
+                                                <span className='removeFilter' onClick={() => removeFilter('wind')}>×</span>
+                                            </div>
+                                        )}
+                                        {filters.wave && (
+                                            <div className='filterTab'>
+                                                Wave: {filters.wave}
+                                                <span className='removeFilter' onClick={() => removeFilter('wave')}>×</span>
+                                            </div>
+                                        )}
+                                        {filters.swell && (
+                                            <div className='filterTab'>
+                                                Swell: {filters.swell}
+                                                <span className='removeFilter' onClick={() => removeFilter('swell')}>×</span>
+                                            </div>
+                                        )}
                                     </div>
+                                    
                                 )}
                                 
                                 <PopUp trigger={popupButton} setTrigger={setPopupButton} onClearAll={handleClearAll} onCancel={handleCancel} onApply={handleApply}>
@@ -671,14 +688,14 @@ function SurferMode() {
                                         </div>
 
                                         <div className='filterRow'>
-                                            <label>Crowd</label>
-                                            <select value={filters.crowd || ""} onChange={(e) => setFilters({ ...filters, crowd: e.target.value })}>
+                                            <label>Swell</label>
+                                            <select value={filters.swell || ""} onChange={(e) => setFilters({ ...filters, swell: e.target.value })}>
                                                 <option value="">Select filter</option>
-                                                <option value="Quiet">Quiet</option>
+                                                <option value="Low">Low</option>
                                                 <option value="Moderate">Moderate</option>
-                                                <option value="Busy">Busy</option>
+                                                <option value="High">High</option>
                                             </select>
-                                        </div>
+                                        </div>                                        
                                     </div>
 
                                 </PopUp>

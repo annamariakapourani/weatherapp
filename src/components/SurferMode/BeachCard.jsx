@@ -27,9 +27,7 @@ function BeachCard({beach, onArrowClick}) {
                 <div className='beachInfo'>
                     <p>Beach temperature: {beach.temperature}</p>
                     <p>Description: {beach.description}</p>
-                    <p className={`crowd-${crowdTypeClass}`}>
-                        Crowd Level: {beach.crowd} ({beach.crowdType || 'Unknown'})
-                    </p>
+
                 </div>
             </div>
             <div className='beachRating'> 

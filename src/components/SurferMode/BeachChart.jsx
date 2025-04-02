@@ -38,7 +38,7 @@ const BeachChart = ({ beach, onHide }) => {
         <div className="popup">
             <div className="details">
                 <div className="name">
-                    <p>Name: {beach.display_name}</p>
+                    <p>{beach.display_name}</p>
                 </div>
                 <div className="hide-button">
                     <button onClick={onHide}>Hide</button>

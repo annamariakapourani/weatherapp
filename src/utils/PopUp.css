@@ -65,7 +65,6 @@
     position: absolute;
     display: flex;
     border: none;
-    cursor: pointer;
     margin-top: 19em;
     gap: 3em;
 }
@@ -77,18 +76,42 @@
     width: 4em;
     height: 2em;
     border-radius: 0.3em;
+    cursor: pointer; 
 }
 
 .apply-btn{
     background-color: #72BBCE;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.apply-btn:hover {
+    background-color: #5aa3b5;
+    transform: scale(1.1);
 }
 
 .cancel-btn{
     color: #72BBCE;
     background-color: #fff;
     border: 1px solid #72BBCE;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.cancel-btn:hover {
+    background-color: #72BBCE;
+    color: white;
+    transform: scale(1.1);
 }
 
 .clear-btn{
     color: #F25C54;
+    background-color: white;
+    border: 1px solid #F25C54;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.clear-btn:hover {
+    background-color: #F25C54;
+    color: white;
+    transform: scale(1.1);
 }
