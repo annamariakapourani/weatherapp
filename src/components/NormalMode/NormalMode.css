@@ -16,7 +16,7 @@ p {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(180deg, #F08080 0%, #F4978E 25.6%, #F8AD9D 46.6%, #FBC4AB 68.6%, #ffdab9ed 100%);
+    background: linear-gradient(180deg, #B596E5 0%, #E1D8F7 100%);
     min-height: 100vh;
 }
 
